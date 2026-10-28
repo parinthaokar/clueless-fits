@@ -23,7 +23,7 @@ export interface OutfitItem {
   item: ClothingItem;
 }
 
-// What the stylist chatbot returns: structured data, not plain text.
+// What the AI stylist returns: structured data, not plain text.
 export interface OutfitSuggestion {
   id: string;
   occasion: string;
@@ -40,5 +40,5 @@ export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   text: string;
-  suggestion?: OutfitSuggestion; // assistant messages can carry an outfit
+  suggestion?: OutfitSuggestion; // assistant messages can carry a look
 }

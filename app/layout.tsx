@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
-import { Chewy, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 
-const chewy = Chewy({ weight: "400", subsets: ["latin"], variable: "--font-chewy" });
+const cormorant = Cormorant_Garamond({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-cormorant",
+});
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Clueless Closet",
-  description: "Your closet, sorted. Your outfits, styled.",
+  title: "Closet",
+  description: "Your wardrobe, styled for you.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${chewy.variable} ${inter.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body className="min-h-screen">
         <Navbar />
-        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
+        <main className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 sm:pt-16">{children}</main>
       </body>
     </html>
   );

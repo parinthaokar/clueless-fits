@@ -1,30 +1,44 @@
 @import "tailwindcss";
 
+/* Colors and fonts are defined here, once. Tune the whole look from this block. */
 @theme inline {
-  --color-cream: #fff9ef;
-  --color-blush: #fde4ee;
-  --color-pink: #f6a9c6;
-  --color-pink-deep: #d94f87;
-  --color-lilac: #ece6fb;
-  --color-lavender: #b9a5ec;
-  --color-butter: #fdf4cf;
-  --color-butter-deep: #f3d36b;
-  --color-ink: #3b2f4a;
-  --font-display: var(--font-chewy);
+  --color-paper: #faf9f7; /* page background */
+  --color-stone: #efede8; /* image backdrop */
+  --color-ink: #1a1a1a; /* text */
+  --color-muted: #6b6862; /* secondary text */
+  --color-line: #e2dfd8; /* 1px borders */
+  --color-accent: #7a6c5a; /* warm taupe: primary actions + active states only */
+  --font-serif: var(--font-cormorant);
   --font-sans: var(--font-inter);
 }
 
 body {
-  background: var(--color-cream);
+  background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* Gingham accent: use sparingly (nav strip, card borders). */
-.gingham {
-  background-color: #fff;
-  background-image:
-    linear-gradient(90deg, rgba(246, 169, 198, 0.55) 50%, transparent 50%),
-    linear-gradient(rgba(246, 169, 198, 0.55) 50%, transparent 50%);
-  background-size: 16px 16px;
+/* Small uppercase tracked label, used for categories and metadata. */
+.label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
 }
+
+/* Subtle motion */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-in {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+@keyframes progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.fade-in { animation: fade-in 0.5s ease both; }
+.slide-in { animation: slide-in 0.35s ease both; }
+.progress-line { animation: progress 2s ease-in-out both; }
