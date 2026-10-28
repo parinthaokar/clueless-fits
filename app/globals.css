@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cream: #fff9ef;
+  --color-blush: #fde4ee;
+  --color-pink: #f6a9c6;
+  --color-pink-deep: #d94f87;
+  --color-lilac: #ece6fb;
+  --color-lavender: #b9a5ec;
+  --color-butter: #fdf4cf;
+  --color-butter-deep: #f3d36b;
+  --color-ink: #3b2f4a;
+  --font-display: var(--font-chewy);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Gingham accent: use sparingly (nav strip, card borders). */
+.gingham {
+  background-color: #fff;
+  background-image:
+    linear-gradient(90deg, rgba(246, 169, 198, 0.55) 50%, transparent 50%),
+    linear-gradient(rgba(246, 169, 198, 0.55) 50%, transparent 50%);
+  background-size: 16px 16px;
+}
