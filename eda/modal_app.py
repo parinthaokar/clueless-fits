@@ -22,11 +22,14 @@ import modal
 
 LOCAL_APP = Path(__file__).parent / "app.py"
 REMOTE_APP = "/root/app.py"
+LOCAL_THEME = Path(__file__).parent / ".streamlit" / "config.toml"
+REMOTE_THEME = "/root/.streamlit/config.toml"
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .pip_install("streamlit==1.66.1", "supabase~=2.10", "pandas~=2.2", "altair>=5.4", "python-dotenv")
     .add_local_file(LOCAL_APP, REMOTE_APP)
+    .add_local_file(LOCAL_THEME, REMOTE_THEME)  # dashboard colors
 )
 
 app = modal.App(name="clueless-closet-d2-dashboard", image=image)
@@ -38,4 +41,4 @@ app = modal.App(name="clueless-closet-d2-dashboard", image=image)
 def run():
     cmd = (f"streamlit run {shlex.quote(REMOTE_APP)} --server.port 8000 "
            "--server.enableCORS=false --server.enableXsrfProtection=false --server.headless=true")
-    subprocess.Popen(cmd, shell=True)
+    subprocess.Popen(cmd, shell=True, cwd="/root")  # cwd so Streamlit finds .streamlit/config.toml
