@@ -1,0 +1,52 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+* { box-sizing:border-box; margin:0; }
+body { width:1280px; background:#fffaf0; color:#1d1a16; font-family: Inter, sans-serif; }
+.serif { font-family:'GFS Baskerville','DejaVu Serif',serif; }
+.nav { display:flex; align-items:center; gap:10px; padding:16px 40px; border-bottom:2px solid #1d1a16; background:#fff; }
+.logo { font-family:'GFS Baskerville','DejaVu Serif',serif; font-weight:700; font-size:24px; padding:4px 12px; border:2.5px solid #1d1a16; box-shadow:4px 4px 0 #1d1a16; background:#fffaf0; margin-right:24px; }
+.pill { padding:7px 16px; border:2px solid #1d1a16; border-radius:999px; font-size:14px; font-weight:700; background:#fff; white-space:nowrap; }
+.pill.on { background:#1d1a16; color:#f6c544; }
+.pill.soft { font-weight:600; font-size:13px; padding:5px 12px; }
+.grow { flex:1; }
+.avatar { width:38px; height:38px; border-radius:50%; border:2px solid #1d1a16; background:#f6c544; display:grid; place-items:center; font-weight:800; }
+.card { background:#fff; border:2px solid #1d1a16; border-radius:22px; box-shadow:0 6px 0 #f6c544; }
+.btn { display:inline-block; padding:12px 22px; border:2px solid #1d1a16; border-radius:999px; font-weight:800; font-size:15px; box-shadow:0 4px 0 #1d1a16; }
+.btn.main { background:#c2185b; color:#fff; }
+.btn.alt { background:#fff; }
+.tag { display:inline-block; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:#f4eee2; border:1.5px solid #1d1a16; }
+.muted { color:#6b665e; }
+.note { background:#fde7ef; border:2px dashed #c2185b; border-radius:14px; padding:10px 14px; font-size:14px; }
+.warn { background:#fff3c4; border:2px dashed #b8860b; border-radius:14px; padding:10px 14px; font-size:14px; }
+.dot { display:inline-block; width:12px; height:12px; border-radius:50%; border:1.5px solid #1d1a16; vertical-align:-1px; margin-right:5px; }
+h2 { font-size:28px; font-weight:900; letter-spacing:-.01em; }
+</style></head><body><div class="nav"><div class="logo">Clueless Closet</div><div class="pill on">Wardrobe</div><div class="pill">Stylist</div><div class="pill">Fitting Room</div><div class="pill">Saved</div><div class="grow"></div><div class="pill soft">☀ 58°F Charlotte</div><div class="avatar">A</div></div>
+<div style="padding:28px 40px 40px;display:grid;grid-template-columns:1fr 1fr;gap:28px">
+  <div>
+    <h2>Add a piece</h2><div class="muted" style="margin:4px 0 16px">Upload a photo and we'll tag it for you.</div>
+    <div class="card" style="padding:16px"><div style="border-radius:16px;overflow:hidden;border:1.5px solid #f4eee2"><svg viewBox="0 0 120 120" width="100%" style="display:block;aspect-ratio:1"><rect width="120" height="120" fill="#fbf7ee"/><defs><clipPath id="bz3"><path d="M28 24 L48 14 L60 30 L72 14 L92 24 L104 96 H84 L82 52 L80 98 H40 L38 52 L36 96 H16 Z"/></clipPath></defs><path d="M28 24 L48 14 L60 30 L72 14 L92 24 L104 96 H84 L82 52 L80 98 H40 L38 52 L36 96 H16 Z" fill="#f6c544"/><g clip-path="url(#bz3)"><path d="M18 10 V100" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M32 10 V100" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M46 10 V100" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M60 10 V100" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M74 10 V100" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M88 10 V100" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M102 10 V100" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M10 30 H110" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M10 44 H110" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M10 58 H110" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M10 72 H110" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M10 86 H110" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M10 100 H110" stroke="#1d1a16" stroke-opacity=".28" stroke-width="3"/><path d="M25 10 V100" stroke="#c2185b" stroke-opacity=".45" stroke-width="1.5"/><path d="M53 10 V100" stroke="#c2185b" stroke-opacity=".45" stroke-width="1.5"/><path d="M81 10 V100" stroke="#c2185b" stroke-opacity=".45" stroke-width="1.5"/><path d="M109 10 V100" stroke="#c2185b" stroke-opacity=".45" stroke-width="1.5"/></g><path d="M28 24 L48 14 L60 30 L72 14 L92 24 L104 96 H84 L82 52 L80 98 H40 L38 52 L36 96 H16 Z" fill="none" stroke="#1d1a16" stroke-width="2.5" stroke-linejoin="round"/><path d="M60 30 V98" stroke="#1d1a16" stroke-width="2"/></svg></div>
+    <div style="display:flex;gap:10px;margin-top:12px"><span class="pill soft">Retake photo</span><span class="pill soft">Crop</span></div></div>
+  </div>
+  <div style="padding-top:78px">
+    <div class="card" style="padding:20px 22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:18px;font-weight:900">Tagged from your photo</span><span class="tag" style="background:#f6c544">auto</span></div>
+      <div class="muted" style="font-size:13.5px;margin-bottom:8px">How sure the model is about the category:</div>
+      <div style="display:grid;grid-template-columns:96px 1fr 44px;gap:10px;align-items:center;margin:8px 0">
+      <span style="font-size:14px;font-weight:800">Outerwear</span>
+      <div style="height:12px;background:#f4eee2;border-radius:8px"><div style="width:91%;height:100%;background:#c2185b;border-radius:8px"></div></div>
+      <span style="font-size:13px;font-weight:700">91%</span></div><div style="display:grid;grid-template-columns:96px 1fr 44px;gap:10px;align-items:center;margin:8px 0">
+      <span style="font-size:14px;font-weight:500">Tops</span>
+      <div style="height:12px;background:#f4eee2;border-radius:8px"><div style="width:6%;height:100%;background:#2a78d6;border-radius:8px"></div></div>
+      <span style="font-size:13px;font-weight:700">6%</span></div><div style="display:grid;grid-template-columns:96px 1fr 44px;gap:10px;align-items:center;margin:8px 0">
+      <span style="font-size:14px;font-weight:500">Dresses</span>
+      <div style="height:12px;background:#f4eee2;border-radius:8px"><div style="width:2%;height:100%;background:#2a78d6;border-radius:8px"></div></div>
+      <span style="font-size:13px;font-weight:700">2%</span></div>
+      <div style="height:14px"></div>
+      <div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Name</div><div style="border:2px solid #1d1a16;border-radius:12px;padding:10px 12px;font-size:15px;background:#fff;display:flex;align-items:center;gap:8px">Yellow Plaid Blazer<span class="grow"></span><span class="muted" style="font-size:12px">edit</span></div></div>
+      <div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Category</div><div style="border:2px solid #1d1a16;border-radius:12px;padding:10px 12px;font-size:15px;background:#fff;display:flex;align-items:center;gap:8px">Outerwear<span class="grow"></span><span class="muted" style="font-size:12px">edit</span></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Color</div><div style="border:2px solid #1d1a16;border-radius:12px;padding:10px 12px;font-size:15px;background:#fff;display:flex;align-items:center;gap:8px"><span class="dot" style="background:#f6c544"></span>mustard<span class="grow"></span><span class="muted" style="font-size:12px">edit</span></div></div><div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Pattern</div><div style="border:2px solid #1d1a16;border-radius:12px;padding:10px 12px;font-size:15px;background:#fff;display:flex;align-items:center;gap:8px">plaid<span class="grow"></span><span class="muted" style="font-size:12px">edit</span></div></div></div>
+      <div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Notes (optional)</div><div style="border:2px solid #1d1a16;border-radius:12px;padding:10px 12px;font-size:15px;background:#fff;display:flex;align-items:center;gap:8px"><span class="muted">e.g. runs small, dry clean only</span><span class="grow"></span><span class="muted" style="font-size:12px">edit</span></div></div>
+      <div class="note" style="margin-top:4px">We tag from the photo first: in our training data, about 70% of items had no title or description, so images carried the signal.</div>
+      <div style="display:flex;gap:12px;margin-top:16px"><span class="btn main">Save to wardrobe</span><span class="btn alt">Cancel</span></div>
+    </div>
+  </div>
+</div></body></html>
