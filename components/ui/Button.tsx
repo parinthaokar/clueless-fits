@@ -1,17 +1,19 @@
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { cx } from "./cx";
 
 // Pill-shaped CTA with a hard ink shadow that presses down on click.
 // variant="primary"   → raspberry, white text ("Save look", "Start my closet")
 // variant="secondary" → white ("Cancel", "Try the demo closet")
 // Renders a <Link> when href is set, otherwise a <button>.
+// loading (buttons only): shows a spinner, disables the button and sets aria-busy.
 type Common = {
   variant?: "primary" | "secondary";
   className?: string;
   children: React.ReactNode;
 };
 type AsLink = Common & { href: string };
-type AsButton = Common & { href?: undefined } & React.ButtonHTMLAttributes<HTMLButtonElement>;
+type AsButton = Common & { href?: undefined; loading?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const variants = {
   primary: "bg-raspberry text-white",
@@ -39,9 +41,10 @@ export default function Button(props: AsLink | AsButton) {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { variant: _v, className: _c, children: _ch, href: _h, type = "button", ...buttonProps } = props;
+  const { variant: _v, className: _c, children: _ch, href: _h, type = "button", loading = false, disabled, ...buttonProps } = props;
   return (
-    <button type={type} className={classes} {...buttonProps}>
+    <button type={type} className={classes} disabled={disabled || loading} aria-busy={loading || undefined} {...buttonProps}>
+      {loading && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
       {children}
     </button>
   );

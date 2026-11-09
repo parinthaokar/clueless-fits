@@ -5,7 +5,6 @@ import type {
   ClothingItem,
   OutfitSuggestion,
   SavedOutfit,
-  TagResult,
 } from "./types";
 
 // The mock "today", so "added this week" stays stable between server and client renders.
@@ -54,20 +53,6 @@ export const wardrobeItems: ClothingItem[] = [
   piece("i12", "Denim Jacket", "Outerwear", "jacket", "blue", "2026-09-15"),
   piece("i13", "Tinted Sunglasses", "Accessories", "sunglasses", "lavender", "2026-09-10"),
 ];
-
-// What the (mock) photo tagger returns. A real model call replaces this later.
-export const mockTagResult: TagResult = {
-  confidences: [
-    { category: "Outerwear", percent: 91 },
-    { category: "Tops", percent: 6 },
-    { category: "Dresses", percent: 2 },
-  ],
-  name: "Yellow Plaid Blazer",
-  category: "Outerwear",
-  kind: "blazer",
-  color: "mustard",
-  pattern: "plaid",
-};
 
 const byId = (id: string) => wardrobeItems.find((i) => i.id === id)!;
 

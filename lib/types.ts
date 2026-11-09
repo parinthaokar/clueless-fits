@@ -35,21 +35,25 @@ export interface ClothingItem {
   name: string;
   category: Category;
   kind: GarmentKind;
-  color: ColorName; // tagged color, see lib/colors.ts
+  color: ColorName; // see lib/colors.ts
   pattern: Pattern;
-  notes?: string;
-  photoUrl?: string; // the user's own photo; never a Polyvore image
+  description?: string;
+  photoUrl?: string; // the user's own photo, used as the picture only; never a Polyvore image
   addedAt: string; // ISO date
 }
 
-// What the photo tagger returns for a new piece.
-export interface TagResult {
-  confidences: { category: Category; percent: number }[]; // top 3, highest first
+// POST /predict (contract: api/CONTRACT.md on the backend-api branch)
+export interface PredictRequest {
   name: string;
-  category: Category;
-  kind: GarmentKind;
-  color: ColorName;
-  pattern: Pattern;
+  description?: string;
+}
+
+export interface PredictResponse {
+  category: string; // raw model label (11 values)
+  app_category: Category; // use this one in the UI
+  slots: Slot[];
+  confidence: number; // 0–1
+  top_3: { category: string; probability: number }[];
 }
 
 export interface OutfitItem {
