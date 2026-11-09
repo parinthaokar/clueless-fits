@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Libre_Baskerville } from "next/font/google";
-import Navbar from "@/components/Navbar";
 import "./globals.css";
 
 // Inter is variable (covers 400–900). Libre Baskerville is static: 700 for the logo/headline.
@@ -19,10 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${libreBaskerville.variable}`}>
-      <body className="min-h-screen">
-        <Navbar />
-        <main className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 sm:pt-16">{children}</main>
-      </body>
+      <body className="min-h-screen">{children}</body>
     </html>
   );
 }

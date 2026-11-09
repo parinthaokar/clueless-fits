@@ -7,6 +7,11 @@ import type {
   SavedOutfit,
 } from "./types";
 
+// Placeholder user and today's weather, shown in the navbar.
+// TODO: replace currentUser with the logged-in user once auth exists.
+export const currentUser = { name: "Guest", initial: "G" };
+export const weather = { tempF: 58, city: "Charlotte", icon: "☀", summary: "sunny" };
+
 export const categories: Category[] = [
   "Tops",
   "Bottoms",
