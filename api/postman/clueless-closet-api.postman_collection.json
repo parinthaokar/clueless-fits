@@ -1,0 +1,329 @@
+{
+  "info": {
+    "name": "Clueless Closet API",
+    "description": "Assertions against the deployed Modal API. Set the collection variable baseUrl to the Modal URL (no trailing slash). The 503 case is tested locally with pytest (tests/test_api.py) so the live app is never broken.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"status is ok\", () => pm.expect(pm.response.json().status).to.eql(\"ok\"));",
+              "pm.test(\"model is loaded\", () => pm.expect(pm.response.json().model_loaded).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pipeline info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/pipeline-info",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "pipeline-info"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test(\"has 11 classes\", () => pm.expect(b.classes).to.have.lengthOf(11));",
+              "pm.test(\"has sklearn version\", () => pm.expect(b.sklearn_version).to.be.a(\"string\"));",
+              "pm.test(\"has model name\", () => pm.expect(b.model_name).to.be.a(\"string\").and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Predict - valid (boots)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Black leather ankle boots\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test(\"predicts shoes\", () => pm.expect(b.app_category).to.eql(\"Shoes\"));",
+              "pm.test(\"slot is Shoes\", () => pm.expect(b.slots).to.eql([\"Shoes\"]));",
+              "pm.test(\"confidence between 0 and 1\", () => pm.expect(b.confidence).to.be.within(0, 1));",
+              "pm.test(\"returns top 3\", () => pm.expect(b.top_3).to.have.lengthOf(3));",
+              "pm.test(\"responds under 3s\", () => pm.expect(pm.response.responseTime).to.be.below(3000));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Predict - valid (dress, with description)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Red midi dress\",\n  \"description\": \"Silk, slip style\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"dress fills Top and Bottom\", () => pm.expect(pm.response.json().slots).to.eql([\"Top\",\"Bottom\"]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Predict - invalid (empty name)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 422\", () => pm.response.to.have.status(422));",
+              "pm.test(\"has error detail\", () => pm.expect(pm.response.json().detail).to.be.an(\"array\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Predict - invalid (missing name)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"no name given\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 422\", () => pm.response.to.have.status(422));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Predict - invalid (wrong type)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": 123\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 422\", () => pm.response.to.have.status(422));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Predict - invalid (unknown field)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"boots\",\n  \"color\": \"black\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status 422\", () => pm.response.to.have.status(422));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://REPLACE-WITH-MODAL-URL.modal.run"
+    }
+  ]
+}
