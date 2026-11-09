@@ -1,15 +1,45 @@
 @import "tailwindcss";
 
-/* Colors and fonts are defined here, once. Tune the whole look from this block. */
+/* Colors, fonts and hard shadows are defined here, once (see design/DESIGN.md). */
 @theme inline {
-  --color-paper: #faf9f7; /* page background */
-  --color-stone: #efede8; /* image backdrop */
-  --color-ink: #1a1a1a; /* text */
-  --color-muted: #6b6862; /* secondary text */
-  --color-line: #e2dfd8; /* 1px borders */
-  --color-accent: #7a6c5a; /* warm taupe: primary actions + active states only */
-  --font-serif: var(--font-cormorant);
+  /* Clueless Closet palette */
+  --color-ink: #1d1a16; /* text, all outlines, dark pills */
+  --color-cream: #fffaf0; /* page background */
+  --color-mustard: #f6c544; /* plaid, card drop shadows, text on dark pills */
+  --color-raspberry: #c2185b; /* primary buttons, main bars, KPI numbers, accents */
+  --color-denim: #2a78d6; /* secondary bars (pairs with raspberry; colorblind-safe) */
+  --color-track: #f4eee2; /* bar tracks, soft tags */
+  --color-canvas: #fbf7ee; /* image backgrounds */
+  --color-muted: #6b665e; /* secondary text */
+  --color-note-pink: #fde7ef; /* info notes (dashed raspberry border) */
+  --color-warn-yellow: #fff3c4; /* warnings, e.g. "Closet gap" */
+  --color-warn-border: #b8860b; /* dashed warning border */
+
+  /* Legacy tokens: still used by the current pages. Remove once they're restyled. */
+  --color-paper: #faf9f7;
+  --color-stone: #efede8;
+  --color-line: #e2dfd8;
+  --color-accent: #7a6c5a;
+
   --font-sans: var(--font-inter);
+  --font-serif: var(--font-libre-baskerville);
+
+  /* Hard, blur-free shadows */
+  --shadow-logo: 4px 4px 0 var(--color-ink);
+  --shadow-headline: 7px 7px 0 var(--color-ink);
+  --shadow-card: 0 6px 0 var(--color-mustard);
+  --shadow-tile: 0 5px 0 var(--color-mustard);
+  --shadow-tile-sm: 0 4px 0 var(--color-mustard);
+  --shadow-button: 0 4px 0 var(--color-ink);
+}
+
+/* Landing-hero plaid: mustard + dark/white weave + raspberry pinstripe. */
+.plaid {
+  background-color: var(--color-mustard);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(29, 26, 22, 0) 0 22px, rgba(29, 26, 22, 0.55) 22px 26px, rgba(29, 26, 22, 0) 26px 44px, rgba(255, 255, 255, 0.35) 44px 46px, rgba(29, 26, 22, 0) 46px 66px),
+    repeating-linear-gradient(90deg, rgba(29, 26, 22, 0) 0 22px, rgba(29, 26, 22, 0.55) 22px 26px, rgba(29, 26, 22, 0) 26px 44px, rgba(255, 255, 255, 0.35) 44px 46px, rgba(29, 26, 22, 0) 46px 66px),
+    repeating-linear-gradient(90deg, rgba(194, 24, 91, 0) 0 60px, rgba(194, 24, 91, 0.35) 60px 63px, rgba(194, 24, 91, 0) 63px 132px);
 }
 
 body {
