@@ -17,7 +17,7 @@ export default function LookCard({ outfit }: { outfit: SavedOutfit }) {
       <div className="grid grid-cols-2 gap-px bg-line">
         {outfit.items.map(({ slot, item }) => (
           <div key={slot} className="aspect-[3/4]">
-            <GarmentImage src={item.imageUrl} alt={item.name} />
+            <GarmentImage item={item} />
           </div>
         ))}
       </div>

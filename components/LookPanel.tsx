@@ -20,7 +20,7 @@ export default function LookPanel({ outfit, saved, onSave, onAnother }: Props) {
         {outfit.items.map(({ slot, item }) => (
           <div key={slot} className="group">
             <div className="aspect-[3/4]">
-              <GarmentImage src={item.imageUrl} alt={item.name} />
+              <GarmentImage item={item} />
             </div>
             <p className="label mt-2">{slot}</p>
           </div>

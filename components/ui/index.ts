@@ -8,3 +8,4 @@ export { default as ConfidenceBar } from "./ConfidenceBar";
 export { default as RatingDots } from "./RatingDots";
 export { default as Note } from "./Note";
 export { default as Warn } from "./Warn";
+export { default as Swatch } from "./Swatch";

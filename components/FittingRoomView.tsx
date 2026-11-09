@@ -47,7 +47,7 @@ export default function FittingRoomView({ outfit }: { outfit: OutfitSuggestion }
             {outfit.items.map(({ slot, item }) => (
               <li key={slot} className="group flex items-center gap-4">
                 <div className="h-20 w-[60px] shrink-0">
-                  <GarmentImage src={item.imageUrl} alt={item.name} />
+                  <GarmentImage item={item} />
                 </div>
                 <div className="min-w-0">
                   <p className="label">{slot}</p>
