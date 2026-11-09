@@ -15,7 +15,8 @@ npm run dev                  # http://localhost:3000
 
 `.env.local` sets `NEXT_PUBLIC_API_URL`, the backend's base URL (the live API on Modal).
 It's gitignored, so each of us copies it from `.env.example`. Restart `npm run dev` after
-changing it. The backend only accepts requests from `localhost:3000` and `*.vercel.app`.
+changing it. The backend currently only accepts requests from `localhost:3000`; to use it from
+a Vercel deployment, send the Vercel URL to the backend owner so it can be allowed.
 
 ## Routes
 
