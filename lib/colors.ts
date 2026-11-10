@@ -17,9 +17,17 @@ export const garmentColors = {
   green: "#7fb069",
   brown: "#8a5a3c",
   tan: "#d8b98c",
+  camel: "#c79a6b",
+  stone: "#d9ccb6",
 } as const;
 
 export type ColorName = keyof typeof garmentColors;
+
+// Belt buckle: silver on near-black belts, gold on everything else (design/model_v5/notes.md).
+export function buckleColor(fill: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(fill.slice(i, i + 2), 16));
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.25 ? "#c9cdd2" : "#c9a35c";
+}
 export const colorNames = Object.keys(garmentColors) as ColorName[];
 
 // Drawing to use when the category changes and we don't have a better guess.

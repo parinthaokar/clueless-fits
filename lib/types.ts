@@ -16,16 +16,22 @@ export type Slot = "Top" | "Bottom" | "Shoes" | "Accessory";
 export type GarmentKind =
   | "blazer"
   | "jacket"
+  | "leather" // leather jacket
   | "tee"
   | "shell"
+  | "shirt" // button-up
   | "skirt"
   | "dress"
   | "trousers"
+  | "wideleg" // wide-leg trousers
   | "jeans"
+  | "belt"
   | "sneakers"
   | "boots"
   | "pumps"
-  | "bag"
+  | "loafers"
+  | "bag" // shoulder bag
+  | "tophandle" // top-handle bag
   | "sunglasses";
 
 export type Pattern = "solid" | "plaid" | "stripe";

@@ -56,6 +56,32 @@ export const wardrobeItems: ClothingItem[] = [
 
 const byId = (id: string) => wardrobeItems.find((i) => i.id === id)!;
 
+// The two default model looks from design/model_v5/model_reference.html (used by /model-preview).
+// Kept out of wardrobeItems so the demo closet and its counts stay as drawn in design/screens.
+export const referenceLooks = {
+  feminine: {
+    title: "The Work look: white button-up, brown belt, wide-leg black trousers, pointed black pumps, tan top-handle bag",
+    outfit: {
+      Top: piece("r1", "White Button-Up Shirt", "Tops", "shirt", "white", "2026-11-01"),
+      Belt: piece("r2", "Brown Leather Belt", "Accessories", "belt", "brown", "2026-11-01"),
+      Bottom: piece("r3", "Black Wide-Leg Trousers", "Bottoms", "wideleg", "black", "2026-11-01"),
+      Shoes: piece("r4", "Pointed Black Pumps", "Shoes", "pumps", "black", "2026-11-01"),
+      Bag: piece("r5", "Tan Top-Handle Bag", "Bags", "tophandle", "camel", "2026-11-01"),
+    },
+  },
+  masculine: {
+    title: "Black leather jacket, white tee, black belt, stone wide-leg trousers, black loafers, black sunglasses",
+    outfit: {
+      Outerwear: piece("r6", "Black Leather Jacket", "Outerwear", "leather", "black", "2026-11-01"),
+      Top: byId("i3"),
+      Belt: piece("r7", "Black Belt", "Accessories", "belt", "black", "2026-11-01"),
+      Bottom: piece("r8", "Stone Wide-Leg Trousers", "Bottoms", "wideleg", "stone", "2026-11-01"),
+      Shoes: piece("r9", "Black Loafers", "Shoes", "loafers", "black", "2026-11-01"),
+      Accessory: piece("r10", "Black Sunglasses", "Accessories", "sunglasses", "black", "2026-11-01"),
+    },
+  },
+};
+
 export const classLook: OutfitSuggestion = {
   id: "o1",
   occasion: "Class",
