@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { buckleColor as buckle, garmentColors } from "@/lib/colors";
-import type { ClothingItem, GarmentKind, Pattern, Slot } from "@/lib/types";
+import type { ClothingItem, GarmentKind, LookSlot, ModelStyle, Pattern } from "@/lib/types";
 import {
   FEM_HAIR_BACK,
   FEM_HAIR_CAP,
@@ -17,7 +17,7 @@ import {
 //   hair (back), arms + legs, shoes, bottom, top, belt, outerwear, shoulder bag, hands,
 //   bag in hand, ears + head + neck, collars, face, sunglasses, hair (front)
 
-export type ModelStyle = "feminine" | "masculine";
+export type { ModelStyle };
 
 export const SKIN_TONES = ["#f3d4bf", "#e2b08c", "#c98e6b", "#9a6646", "#5e3b28"] as const;
 export type SkinTone = (typeof SKIN_TONES)[number];
@@ -31,8 +31,8 @@ export const HAIR_COLORS: Record<SkinTone, { hair: string; strand: string }> = {
   "#5e3b28": { hair: "#141010", strand: "#3a302c" },
 };
 
-// The Fitting Room lists Outerwear as its own slot; v5 adds a belt and a bag alongside an accessory.
-export type ModelSlot = Slot | "Outerwear" | "Belt" | "Bag";
+// One item per slot (see LookSlot in lib/types.ts).
+export type ModelSlot = LookSlot;
 export type ModelOutfit = Partial<Record<ModelSlot, ClothingItem>>;
 
 const INK = "#1d1a16";
@@ -796,12 +796,13 @@ export default function Model({ style, skinTone, outfit, className }: Props) {
   const bottom = wearingDress ? null : (wear("bottom") ?? base("bottom"));
   const outerwear = wear("outerwear");
 
+  // Describe only what's drawn (e.g. not a bottom hidden under a dress), in outfit order.
+  const drawn = new Set(Object.values(byLayer));
   const names = Object.values(outfit)
-    .filter((i): i is ClothingItem => !!i)
+    .filter((i): i is ClothingItem => !!i && drawn.has(i))
     .map((i) => i.name.toLowerCase());
-  const label = `${style === "feminine" ? "Feminine" : "Masculine"} model wearing ${
-    names.length ? names.join(", ") : "a plain base layer"
-  }`;
+  const list = names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0];
+  const label = `Drawing of a ${style} model wearing ${list ?? "a plain base layer"}`;
 
   return (
     <svg viewBox="0 0 200 330" role="img" aria-label={label} className={className ?? "block h-full w-full"}>

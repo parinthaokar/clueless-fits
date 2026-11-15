@@ -10,7 +10,15 @@ export type Category =
   | "Bags"
   | "Accessories";
 
+// Slots the /predict API returns for an item.
 export type Slot = "Top" | "Bottom" | "Shoes" | "Accessory";
+
+// Slots a look can fill: the API slots plus the ones the Stylist and Fitting Room show.
+export type LookSlot = Slot | "Outerwear" | "Belt" | "Bag";
+export const lookSlots: LookSlot[] = ["Top", "Bottom", "Outerwear", "Shoes", "Belt", "Bag", "Accessory"];
+
+// The two drawn model bodies (components/Model.tsx).
+export type ModelStyle = "feminine" | "masculine";
 
 // The drawing used for an item when there's no photo (see components/GarmentArt.tsx).
 export type GarmentKind =
@@ -63,7 +71,7 @@ export interface PredictResponse {
 }
 
 export interface OutfitItem {
-  slot: Slot;
+  slot: LookSlot;
   item: ClothingItem;
 }
 
@@ -73,6 +81,8 @@ export interface OutfitSuggestion {
   occasion: string;
   items: OutfitItem[];
   why: string;
+  closetGap?: string; // something the closet is missing for this occasion
+  model?: ModelStyle; // body the look was styled on; the user can switch it in the Fitting Room
 }
 
 export interface SavedOutfit extends OutfitSuggestion {
