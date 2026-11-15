@@ -3,7 +3,7 @@ import { cx } from "./cx";
 
 // Fully rounded, 2px ink border, bold. Used for nav, filters, occasions and small actions.
 // selected → ink fill + mustard text (fill AND text change, so it's not color-only).
-// size="sm" is the "soft" pill: filters, occasions, Shuffle / Turn / Retake photo, weather chip.
+// size="sm" is the "soft" pill: filters, occasions, Shuffle / Hide outerwear / Retake photo, weather chip.
 //
 // Renders a <Link> with href, a <button> with onClick, otherwise a static <span>.
 interface Props {

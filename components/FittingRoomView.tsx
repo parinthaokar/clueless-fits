@@ -2,32 +2,59 @@
 
 import { useState } from "react";
 import GarmentImage from "@/components/GarmentImage";
-import Model, { SKIN_TONES, type SkinTone } from "@/components/Model";
+import Model, { SKIN_TONES } from "@/components/Model";
 import { Button, Card, Note, Pill, Tag } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
-import { wardrobeItems, weather } from "@/lib/mockData";
-import { closetFor, isDress, sortBySlot, toModelOutfit } from "@/lib/outfit";
+import { classLook, getOutfitById, wardrobeItems, weather } from "@/lib/mockData";
+import { closetFor, isDress, lookFromQuery, lookToQuery, sortBySlot, toModelOutfit } from "@/lib/outfit";
+import { useStore } from "@/lib/store";
 import type { LookSlot, ModelStyle, OutfitItem, OutfitSuggestion } from "@/lib/types";
 
 // design/screens/5_fitting_room.png and 6_fitting_room_masc.png.
-// Swaps cycle through closet items that fit the slot (lib/outfit.ts closetFor).
+// Swaps cycle through closet items that fit the slot (lib/outfit.ts closetFor), including
+// pieces added in the Wardrobe. Model style and skin tone are shared with the Stylist via the store.
+
+export type FittingRoomParams = { outfit?: string; items?: string; occasion?: string; model?: string; saved?: string };
 
 const styles: { value: ModelStyle; label: string }[] = [
   { value: "feminine", label: "Feminine" },
   { value: "masculine", label: "Masculine" },
 ];
 
-interface Props {
-  look: OutfitSuggestion;
-  initialModel: ModelStyle;
+const asModelStyle = (v: string | undefined): ModelStyle | undefined =>
+  v === "feminine" || v === "masculine" ? v : undefined;
+
+export default function FittingRoomView({ params }: { params: FittingRoomParams }) {
+  const { closet, saved, modelStyle, ready } = useStore();
+
+  // Pieces the Stylist suggests come from the demo closet, so look ids up there too.
+  const known = [...closet, ...wardrobeItems];
+  const savedLook = params.saved ? saved.find((l) => l.id === params.saved) : undefined;
+  const look =
+    savedLook ??
+    (params.items ? lookFromQuery(params.items, known, params.occasion) : undefined) ??
+    getOutfitById(params.outfit) ??
+    classLook;
+  const initialModel = asModelStyle(params.model) ?? savedLook?.model ?? modelStyle ?? look.model ?? "feminine";
+
+  // key: a new URL (or the stored closet arriving after hydration) starts a fresh fitting.
+  return (
+    <Fitting
+      key={`${ready}|${JSON.stringify(params)}`}
+      look={look}
+      initialModel={initialModel}
+      savedId={savedLook?.id ?? null}
+    />
+  );
 }
 
-export default function FittingRoomView({ look, initialModel }: Props) {
+function Fitting({ look, initialModel, savedId: initialSavedId }: { look: OutfitSuggestion; initialModel: ModelStyle; savedId: string | null }) {
+  const store = useStore();
+  const { closet, skinTone: skin } = store;
   const [style, setStyle] = useState<ModelStyle>(initialModel);
-  const [skin, setSkin] = useState<SkinTone>(SKIN_TONES[2]);
   const [items, setItems] = useState<OutfitItem[]>(() => sortBySlot(look.items));
   const [hideOuterwear, setHideOuterwear] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(initialSavedId);
   const [announcement, setAnnouncement] = useState("");
 
   const wearingDress = isDress(items.find((i) => i.slot === "Top")?.item);
@@ -35,12 +62,33 @@ export default function FittingRoomView({ look, initialModel }: Props) {
   const onModel = items.filter((i) => !(hideOuterwear && i.slot === "Outerwear"));
 
   function swap(slot: LookSlot, step: 1 | -1) {
-    const pool = closetFor(slot, wardrobeItems);
+    const pool = closetFor(slot, closet);
     const current = items.find((i) => i.slot === slot)!.item;
-    const next = pool[(pool.findIndex((p) => p.id === current.id) + step + pool.length) % pool.length];
+    const at = pool.findIndex((p) => p.id === current.id);
+    // A piece no longer in the closet: › goes to the first, ‹ to the last.
+    const next = at < 0 ? pool[step > 0 ? 0 : pool.length - 1] : pool[(at + step + pool.length) % pool.length];
     setItems(items.map((i) => (i.slot === slot ? { slot, item: next } : i)));
-    setSaved(false);
+    setSavedId(null);
     setAnnouncement(`${slot}: ${next.name}`);
+  }
+
+  function pickStyle(value: ModelStyle) {
+    setStyle(value);
+    store.setModelStyle(value);
+  }
+
+  // The look as worn: a bottom set aside under a dress isn't part of it.
+  const worn = items.filter((i) => !(i.slot === "Bottom" && wearingDress));
+
+  function toggleSave() {
+    if (savedId) {
+      store.deleteLook(savedId);
+      setSavedId(null);
+      setAnnouncement("Look removed from Saved");
+    } else {
+      setSavedId(store.saveLook({ ...look, items: worn, model: style }));
+      setAnnouncement("Look saved");
+    }
   }
 
   return (
@@ -57,7 +105,7 @@ export default function FittingRoomView({ look, initialModel }: Props) {
             </h2>
             <div role="group" aria-label="Model style" className="flex gap-2">
               {styles.map((s) => (
-                <Pill key={s.value} size="sm" selected={style === s.value} onClick={() => setStyle(s.value)}>
+                <Pill key={s.value} size="sm" selected={style === s.value} onClick={() => pickStyle(s.value)}>
                   {s.label}
                 </Pill>
               ))}
@@ -90,7 +138,7 @@ export default function FittingRoomView({ look, initialModel }: Props) {
                   role="radio"
                   aria-checked={skin === tone}
                   aria-label={`Skin tone ${n + 1} of ${SKIN_TONES.length}`}
-                  onClick={() => setSkin(tone)}
+                  onClick={() => store.setSkinTone(tone)}
                   className={cx(
                     "h-[26px] w-[26px] rounded-full border-2 border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-raspberry",
                     skin === tone && "ring-[3px] ring-mustard ring-offset-1 ring-offset-white",
@@ -120,7 +168,7 @@ export default function FittingRoomView({ look, initialModel }: Props) {
             {items.map(({ slot, item }) => {
               const setAside = slot === "Bottom" && wearingDress;
               const hidden = slot === "Outerwear" && hideOuterwear;
-              const canSwap = closetFor(slot, wardrobeItems).length > 1;
+              const canSwap = closetFor(slot, closet).some((p) => p.id !== item.id);
               return (
                 <li key={slot} className="flex items-center gap-3 py-2.5 sm:gap-4">
                   <div
@@ -166,10 +214,10 @@ export default function FittingRoomView({ look, initialModel }: Props) {
           </Note>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button onClick={() => setSaved(true)} aria-pressed={saved}>
-              {saved ? "Saved ✓" : "Save look"}
+            <Button onClick={toggleSave} aria-pressed={savedId !== null}>
+              {savedId ? "Saved ✓" : "Save look"}
             </Button>
-            <Button variant="secondary" href="/stylist">
+            <Button variant="secondary" href={`/stylist?${lookToQuery({ ...look, items: worn }, style)}`}>
               Ask the stylist
             </Button>
           </div>

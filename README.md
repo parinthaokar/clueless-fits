@@ -1,7 +1,9 @@
 # Closet
 
 Next.js App Router + Tailwind. "Add a piece" tags items through the backend's `/predict`
-API (`lib/api.ts`); everything else is still mock data in `lib/mockData.ts`.
+API (`lib/api.ts`); the stylist is still mocked from `lib/mockData.ts`. The closet, saved looks
+(with ratings) and the model style / skin tone live in a client store, `lib/store.tsx` (React
+context + localStorage), which starts from the mock data when storage is empty.
 Colors and fonts are defined once, in the `@theme` block of `app/globals.css`.
 Designs: `design/DESIGN.md` and the mockups in `design/screens/`.
 
@@ -24,10 +26,11 @@ a Vercel deployment, send the Vercel URL to the backend owner so it can be allow
 |---|---|---|
 | `/` | `app/page.tsx` | `PlaidBand`, `Logo`, `GarmentStrip` |
 | `/wardrobe` | `app/(app)/wardrobe/page.tsx` | `TextFilters`, `GarmentCard`, `AddPieceDrawer`, `EmptyState` |
-| `/stylist` | `app/(app)/stylist/page.tsx` | `MessageBlock`, `OccasionPills`, `LookPanel` |
-| `/fitting-room` | `app/(app)/fitting-room/page.tsx` | `FittingRoomView`, `RatingDots` |
-| `/saved` | `app/(app)/saved/page.tsx` | `LookCard`, `RatingDots` |
+| `/stylist` | `app/(app)/stylist/page.tsx` | `StylistView`, `Model`, `RatingDots` |
+| `/fitting-room` | `app/(app)/fitting-room/page.tsx` | `FittingRoomView`, `Model` |
+| `/saved` | `app/(app)/saved/page.tsx` | `Model`, `Card`, `Pill`, `Tag`, `RatingDots`, `EmptyState` |
 
 Shared: `Navbar` (in `app/(app)/layout.tsx`), `components/ui/` (Card, Pill, Button, Tag,
 ConfidenceBar, RatingDots, Note, Warn…), `GarmentArt`/`GarmentImage`, `app/(app)/template.tsx`
-(page fade-in), `lib/types.ts`, `lib/api.ts`, `lib/mockData.ts`.
+(page fade-in), `lib/store.tsx` (`StoreProvider` in `app/(app)/layout.tsx`, `useStore()`),
+`lib/types.ts`, `lib/api.ts`, `lib/mockData.ts`.

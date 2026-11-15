@@ -1,5 +1,4 @@
 // Helpers shared by the Stylist and Fitting Room: slots, closet pools and passing a look in the URL.
-import { byId } from "./mockData";
 import { lookSlots, type ClothingItem, type LookSlot, type ModelStyle, type OutfitItem, type OutfitSuggestion } from "./types";
 
 /** The slot an item fills. Dresses fill Top (a dress replaces top + bottom). */
@@ -36,17 +35,22 @@ export function toModelOutfit(items: OutfitItem[]) {
 export const isDress = (item: ClothingItem | undefined) => item?.category === "Dresses";
 
 // A look in the URL: /fitting-room?items=i9,i10,i1&occasion=Work&model=feminine
-// Item ids rather than a look id, so a shuffled or edited look carries over exactly.
-export function lookToQuery(look: Pick<OutfitSuggestion, "items" | "occasion">, model?: ModelStyle) {
+// (and back: /stylist?items=…). Item ids rather than a look id, so a shuffled or swapped look
+// carries over exactly. Ids are looked up in the user's closet from lib/store.tsx.
+export function lookToQuery(look: Pick<OutfitSuggestion, "items" | "occasion">, model?: ModelStyle | null) {
   const params = new URLSearchParams({ items: look.items.map((i) => i.item.id).join(","), occasion: look.occasion });
   if (model) params.set("model", model);
   return params.toString();
 }
 
-export function lookFromQuery(items: string, occasion = "Styled for you"): OutfitSuggestion | undefined {
+export function lookFromQuery(
+  items: string,
+  closet: ClothingItem[],
+  occasion = "Styled for you",
+): OutfitSuggestion | undefined {
   const picked: OutfitItem[] = [];
   for (const id of items.split(",")) {
-    const item = byId(id.trim());
+    const item = closet.find((i) => i.id === id.trim());
     if (item && !picked.some((p) => p.slot === slotFor(item))) picked.push({ slot: slotFor(item), item });
   }
   if (picked.length === 0) return undefined;

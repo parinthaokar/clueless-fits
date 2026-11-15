@@ -70,25 +70,6 @@ export const wardrobeItems: ClothingItem[] = [
 export const byId = (id: string) => wardrobeItems.find((i) => i.id === id);
 const get = (id: string) => byId(id)!;
 
-// The two default model looks from design/model_v5/model_reference.html (used by /model-preview).
-export const referenceLooks = {
-  feminine: {
-    title: "The Work look: white button-up, brown belt, wide-leg black trousers, pointed black pumps, tan top-handle bag",
-    outfit: { Top: get("i14"), Belt: get("i15"), Bottom: get("i16"), Shoes: get("i17"), Bag: get("i18") },
-  },
-  masculine: {
-    title: "Black leather jacket, white tee, black belt, stone wide-leg trousers, black loafers, black sunglasses",
-    outfit: {
-      Outerwear: get("i19"),
-      Top: get("i20"),
-      Belt: get("i21"),
-      Bottom: get("i22"),
-      Shoes: get("i23"),
-      Accessory: get("i24"),
-    },
-  },
-};
-
 // Looks -------------------------------------------------------------------------------------
 
 // design/screens/5_fitting_room

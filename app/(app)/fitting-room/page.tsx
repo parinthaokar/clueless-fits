@@ -1,25 +1,18 @@
 import { Suspense } from "react";
-import FittingRoomView from "@/components/FittingRoomView";
-import { classLook, getOutfitById } from "@/lib/mockData";
-import { lookFromQuery } from "@/lib/outfit";
-import type { ModelStyle } from "@/lib/types";
+import FittingRoomView, { type FittingRoomParams } from "@/components/FittingRoomView";
 
 // The look comes from the URL:
 //   /fitting-room?items=i9,i10,i1&occasion=Work&model=feminine   (from the Stylist, exact pieces)
-//   /fitting-room?outfit=o2                                     (a saved look)
+//   /fitting-room?saved=look-…                                   (a saved look, from /saved)
+//   /fitting-room?outfit=o2                                      (a mock look by id)
+// The closet and saved looks live in the client store, so FittingRoomView resolves the look.
 // Reading searchParams must happen inside <Suspense> in this version of Next.js.
-type Params = { outfit?: string; items?: string; occasion?: string; model?: string };
-
-async function FittingRoomContent({ searchParams }: { searchParams: Promise<Params> }) {
-  const params = await searchParams;
-  const look = (params.items && lookFromQuery(params.items, params.occasion)) || getOutfitById(params.outfit) || classLook;
-  const model: ModelStyle =
-    params.model === "masculine" || params.model === "feminine" ? params.model : (look.model ?? "feminine");
-  // key: a new URL starts a fresh fitting, not the previous one's swaps
-  return <FittingRoomView key={JSON.stringify(params)} look={look} initialModel={model} />;
+async function FittingRoomContent({ searchParams }: { searchParams: Promise<FittingRoomParams> }) {
+  const { outfit, items, occasion, model, saved } = await searchParams;
+  return <FittingRoomView params={{ outfit, items, occasion, model, saved }} />;
 }
 
-export default function FittingRoomPage({ searchParams }: { searchParams: Promise<Params> }) {
+export default function FittingRoomPage({ searchParams }: { searchParams: Promise<FittingRoomParams> }) {
   return (
     <Suspense fallback={null}>
       <FittingRoomContent searchParams={searchParams} />

@@ -15,12 +15,6 @@
   --color-warn-yellow: #fff3c4; /* warnings, e.g. "Closet gap" */
   --color-warn-border: #b8860b; /* dashed warning border */
 
-  /* Legacy tokens: still used by the current pages. Remove once they're restyled. */
-  --color-paper: #faf9f7;
-  --color-stone: #efede8;
-  --color-line: #e2dfd8;
-  --color-accent: #7a6c5a;
-
   --font-sans: var(--font-inter);
   --font-serif: var(--font-libre-baskerville);
 
@@ -46,14 +40,6 @@ body {
   background: var(--color-cream);
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, sans-serif;
-}
-
-/* Small uppercase tracked label, used for categories and metadata. */
-.label {
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-muted);
 }
 
 /* Subtle motion */

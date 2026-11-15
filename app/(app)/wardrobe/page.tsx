@@ -6,7 +6,8 @@ import EmptyState from "@/components/EmptyState";
 import GarmentCard from "@/components/GarmentCard";
 import TextFilters from "@/components/TextFilters";
 import { Button } from "@/components/ui";
-import { categories, MOCK_TODAY, wardrobeItems } from "@/lib/mockData";
+import { categories, MOCK_TODAY } from "@/lib/mockData";
+import { useStore } from "@/lib/store";
 import type { ClothingItem } from "@/lib/types";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -17,7 +18,7 @@ function addedThisWeek(items: ClothingItem[]) {
 }
 
 export default function WardrobePage() {
-  const [items, setItems] = useState(wardrobeItems);
+  const { closet: items, addItem, removeItem } = useStore();
   const [filter, setFilter] = useState("All");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -48,17 +49,15 @@ export default function WardrobePage() {
       </div>
 
       {items.length === 0 ? (
-        <EmptyState>Your wardrobe is empty. Add your first piece.</EmptyState>
+        <EmptyState title="Your wardrobe is empty">
+          <Button onClick={() => setDrawerOpen(true)}>+ Add your first piece</Button>
+        </EmptyState>
       ) : visible.length === 0 ? (
-        <EmptyState>No {filter.toLowerCase()} yet.</EmptyState>
+        <EmptyState title={`No ${filter.toLowerCase()} yet`} />
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {visible.map((item) => (
-            <GarmentCard
-              key={item.id}
-              item={item}
-              onRemove={(id) => setItems(items.filter((i) => i.id !== id))}
-            />
+            <GarmentCard key={item.id} item={item} onRemove={removeItem} />
           ))}
         </ul>
       )}
@@ -66,7 +65,7 @@ export default function WardrobePage() {
       {drawerOpen && (
         <AddPieceDrawer
           onClose={() => setDrawerOpen(false)}
-          onAdd={(item) => setItems([item, ...items])}
+          onAdd={addItem}
         />
       )}
     </div>

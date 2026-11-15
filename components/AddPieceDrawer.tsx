@@ -31,6 +31,7 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
 
   const [prediction, setPrediction] = useState<PredictResponse | null>(null);
   const [tagging, setTagging] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const requestRef = useRef<AbortController | null>(null);
 
@@ -97,8 +98,12 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
     }
   }
 
-  function handleSave() {
-    if (!name.trim() || !category) return;
+  async function handleSave() {
+    if (!name.trim() || !category || saving) return;
+    setSaving(true);
+    // The closet is kept in localStorage, where a blob: URL wouldn't survive a reload,
+    // so store a small JPEG copy of the photo instead.
+    const storedPhoto = photoUrl ? await shrinkPhoto(photoUrl) : undefined;
     onAdd({
       id: `new-${Date.now()}`,
       name: name.trim(),
@@ -107,9 +112,10 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
       color,
       pattern,
       description: description.trim() || undefined,
-      photoUrl: photoUrl ?? undefined,
+      photoUrl: storedPhoto,
       addedAt: MOCK_TODAY,
     });
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
     onClose();
   }
 
@@ -319,7 +325,7 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
               </Note>
 
               <div className="mt-4 flex flex-wrap gap-3">
-                <Button type="submit" disabled={!name.trim() || !category}>
+                <Button type="submit" disabled={!name.trim() || !category} loading={saving}>
                   Save to wardrobe
                 </Button>
                 <Button variant="secondary" onClick={onClose}>
@@ -333,6 +339,32 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
     </div>,
     document.body,
   );
+}
+
+// Downscale a photo to a JPEG data URL (longest side 480px) small enough for localStorage.
+// Resolves undefined if the image can't be read; the item then shows its drawing.
+function shrinkPhoto(src: string, maxSide = 480): Promise<string | undefined> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(undefined);
+        ctx.fillStyle = "#fff"; // transparent PNGs would turn black in a JPEG
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      } catch {
+        resolve(undefined);
+      }
+    };
+    img.onerror = () => resolve(undefined);
+    img.src = src;
+  });
 }
 
 // Text input / select styled like the mockup's fields, with the muted "edit" hint on the right.
