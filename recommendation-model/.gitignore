@@ -1,5 +1,7 @@
 .venv/
-data/
-outputs/*.npy
-outputs/*.log
+data/shard0.parquet
+# raw + CLIP embeddings are regenerable (see README); only the selected model's adapted embeddings are committed
+outputs/clip_*.npy
+outputs/fashionclip_img.npy
+outputs/fashionclip_txt.npy
 .DS_Store

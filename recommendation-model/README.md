@@ -159,7 +159,8 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt rank_bm25 hug
 
 Notes:
 - The embedding steps take about 5 min each and need about 1.5 GB of disk for the model weights.
-- Large embedding files (`outputs/*.npy`) and `data/` are gitignored. Regenerate them with the steps above, or ask Parin for the `.npy` files.
+- Committed so you can use the selected model right away: `data/meta.parquet` (row order = embedding row order) and `outputs/fashionclip_adapted_{img,txt}.npy` (the selected model's embeddings, 512-d, one row per item/prompt).
+- Not committed (regenerate with the steps above): the 352 MB raw shard `data/shard0.parquet` and the other `.npy` embeddings.
 
 ## 11. Glossary
 
