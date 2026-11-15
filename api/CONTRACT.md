@@ -88,6 +88,31 @@ Predicts what kind of clothing item something is, from its name.
 
 ---
 
+## Database (Supabase)
+
+The wardrobe and saved outfits live in Supabase, not in this API. The frontend
+reads and writes them directly with `@supabase/supabase-js`, signed in through
+Supabase Auth. Schema: [`supabase_schema.sql`](supabase_schema.sql) (run it once
+in the Supabase SQL Editor).
+
+| Table | Frontend type | Notes |
+|---|---|---|
+| `wardrobe_items` | `ClothingItem` | `category` uses the 7 app categories; `predicted_category` / `confidence` keep what `/predict` said |
+| `saved_outfits` | `SavedOutfit` | `rating` is 0–5, 0 = not rated yet |
+| `saved_outfit_items` | `OutfitItem` | one row per piece in a look, with a copy of the piece in `item`; `item_id` links to the closet when it's the user's piece |
+| `user_settings` | `modelStyle`, `skinTone`, `hairColor` | one row per user |
+
+- **Access:** Row Level Security on every table. A signed-in user can only see
+  and change their own rows; nothing is readable without signing in.
+- **Photos:** private `wardrobe-photos` storage bucket, one folder per user
+  (`<user_id>/<file>`). `wardrobe_items.photo_path` stores the path; show it
+  with a signed URL.
+- **Vercel env vars:** `NEXT_PUBLIC_SUPABASE_URL` and
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the anon key is safe in the browser because
+  of RLS; never put the service-role key in the frontend).
+
+---
+
 ## Notes for the frontend (Next.js + shadcn/ui on Vercel)
 
 **TypeScript types**: add to `lib/types.ts`:
