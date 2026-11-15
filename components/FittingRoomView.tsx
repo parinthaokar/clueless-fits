@@ -1,97 +1,295 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { OutfitSuggestion } from "@/lib/types";
-import GarmentImage from "./GarmentImage";
-import RatingDots from "./RatingDots";
+import { useState } from "react";
+import GarmentImage from "@/components/GarmentImage";
+import Model, { HAIR_COLORS, SKIN_TONES } from "@/components/Model";
+import { Button, Card, Note, Pill, Tag } from "@/components/ui";
+import { cx } from "@/components/ui/cx";
+import { defaultLooks, getOutfitById, wardrobeItems, weather } from "@/lib/mockData";
+import {
+  appearanceFromQuery,
+  closetFor,
+  isDress,
+  lookFromQuery,
+  lookToQuery,
+  sortBySlot,
+  toModelOutfit,
+} from "@/lib/outfit";
+import { useAdoptAppearance, useStore } from "@/lib/store";
+import type { LookSlot, ModelStyle, OutfitItem, OutfitSuggestion } from "@/lib/types";
 
-const wearOptions = ["Yes", "Maybe", "No"];
+// design/screens/5_fitting_room.png and 6_fitting_room_masc.png.
+// Swaps cycle through closet items that fit the slot (lib/outfit.ts closetFor), including
+// pieces added in the Wardrobe. Model style, skin tone and hair colour are shared with the
+// Stylist and Saved via the store, and also travel in the URL (?skin=…&hair=…).
 
-export default function FittingRoomView({ outfit }: { outfit: OutfitSuggestion }) {
-  const [loading, setLoading] = useState(true);
-  const [rating, setRating] = useState(0);
-  const [wear, setWear] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+export type FittingRoomParams = {
+  outfit?: string;
+  items?: string;
+  occasion?: string;
+  model?: string;
+  saved?: string;
+  skin?: string;
+  hair?: string;
+};
 
-  // Fake render time. A real app would wait for the avatar API here.
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, [outfit.id]);
+const styles: { value: ModelStyle; label: string }[] = [
+  { value: "feminine", label: "Feminine" },
+  { value: "masculine", label: "Masculine" },
+];
+
+const swatchLabel = "w-[72px] shrink-0 text-[11px] font-extrabold tracking-[0.06em] uppercase";
+const swatch =
+  "h-[26px] w-[26px] rounded-full border-2 border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-raspberry";
+const swatchSelected = "ring-[3px] ring-mustard ring-offset-1 ring-offset-white";
+
+const asModelStyle = (v: string | undefined): ModelStyle | undefined =>
+  v === "feminine" || v === "masculine" ? v : undefined;
+
+export default function FittingRoomView({ params }: { params: FittingRoomParams }) {
+  const { closet, saved, modelStyle, ready } = useStore();
+  useAdoptAppearance(appearanceFromQuery(params.skin, params.hair));
+
+  // Pieces the Stylist suggests come from the demo closet, so look ids up there too.
+  const known = [...closet, ...wardrobeItems];
+  // Only an explicit look in the URL (or a saved look it names) overrides the default outfit.
+  const savedLook = params.saved ? saved.find((l) => l.id === params.saved) : undefined;
+  const urlLook =
+    savedLook ??
+    (params.items ? lookFromQuery(params.items, known, params.occasion) : undefined) ??
+    getOutfitById(params.outfit);
+  const initialModel = asModelStyle(params.model) ?? savedLook?.model ?? modelStyle ?? urlLook?.model ?? "feminine";
+
+  // key: a new URL (or the stored closet arriving after hydration) starts a fresh fitting.
+  return (
+    <Fitting
+      key={`${ready}|${JSON.stringify(params)}`}
+      look={urlLook ?? defaultLooks[initialModel]}
+      isDefault={!urlLook}
+      initialModel={initialModel}
+      savedId={savedLook?.id ?? null}
+    />
+  );
+}
+
+interface FittingProps {
+  look: OutfitSuggestion;
+  /** true when the URL named no look, so the model wears its body's default outfit */
+  isDefault: boolean;
+  initialModel: ModelStyle;
+  savedId: string | null;
+}
+
+function Fitting({ look: initialLook, isDefault, initialModel, savedId: initialSavedId }: FittingProps) {
+  const store = useStore();
+  const { closet, skinTone: skin, hairColor: hair } = store;
+  const [style, setStyle] = useState<ModelStyle>(initialModel);
+  const [look, setLook] = useState<OutfitSuggestion>(initialLook);
+  const [items, setItems] = useState<OutfitItem[]>(() => sortBySlot(initialLook.items));
+  // Still wearing an untouched default outfit: switching body switches to that body's default.
+  const [onDefault, setOnDefault] = useState(isDefault);
+  const [hideOuterwear, setHideOuterwear] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(initialSavedId);
+  const [announcement, setAnnouncement] = useState("");
+
+  const wearingDress = isDress(items.find((i) => i.slot === "Top")?.item);
+  const hasOuterwear = items.some((i) => i.slot === "Outerwear");
+  const onModel = items.filter((i) => !(hideOuterwear && i.slot === "Outerwear"));
+
+  function swap(slot: LookSlot, step: 1 | -1) {
+    const pool = closetFor(slot, closet);
+    const current = items.find((i) => i.slot === slot)!.item;
+    const at = pool.findIndex((p) => p.id === current.id);
+    // A piece no longer in the closet: › goes to the first, ‹ to the last.
+    const next = at < 0 ? pool[step > 0 ? 0 : pool.length - 1] : pool[(at + step + pool.length) % pool.length];
+    setItems(items.map((i) => (i.slot === slot ? { slot, item: next } : i)));
+    setOnDefault(false);
+    setSavedId(null);
+    setAnnouncement(`${slot}: ${next.name}`);
+  }
+
+  function pickStyle(value: ModelStyle) {
+    setStyle(value);
+    store.setModelStyle(value);
+    if (onDefault && value !== style) {
+      const next = defaultLooks[value];
+      setLook(next);
+      setItems(sortBySlot(next.items));
+      setHideOuterwear(false);
+      setSavedId(null);
+      setAnnouncement(`Showing the ${value} default look`);
+    }
+  }
+
+  // The look as worn: a bottom set aside under a dress isn't part of it.
+  const worn = items.filter((i) => !(i.slot === "Bottom" && wearingDress));
+
+  function toggleSave() {
+    if (savedId) {
+      store.deleteLook(savedId);
+      setSavedId(null);
+      setAnnouncement("Look removed from Saved");
+    } else {
+      setSavedId(store.saveLook({ ...look, items: worn, model: style }));
+      setAnnouncement("Look saved");
+    }
+  }
 
   return (
     <div>
-      <p className="label">Fitting Room</p>
-      <h1 className="mt-2 font-serif text-5xl sm:text-6xl">{outfit.occasion}</h1>
+      <h1 className="text-[28px] font-black tracking-[-0.01em]">Fitting Room</h1>
+      <p className="mt-1 mb-[18px] text-muted">See the look on your model and swap pieces from your closet.</p>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_220px]">
-        {/* Studio viewer */}
-        <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden bg-stone sm:aspect-[4/3] lg:aspect-[4/4.4]">
-          {loading ? (
-            <div className="w-48 text-center">
-              <div className="h-px w-full overflow-hidden bg-line">
-                <div className="progress-line h-px bg-ink" />
-              </div>
-              <p className="label mt-4">Preparing your look…</p>
+      <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,520px)_1fr]">
+        {/* Model stage */}
+        <Card as="section" aria-labelledby="model-title" className="p-4 sm:px-5 sm:py-[18px]">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <h2 id="model-title" className="mr-auto text-xl font-black">
+              Your model
+            </h2>
+            <div role="group" aria-label="Model style" className="flex gap-2">
+              {styles.map((s) => (
+                <Pill key={s.value} size="sm" selected={style === s.value} onClick={() => pickStyle(s.value)}>
+                  {s.label}
+                </Pill>
+              ))}
             </div>
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src="/avatar.svg" alt="Your avatar" className="fade-in h-full object-contain" />
-          )}
-        </div>
+            {hasOuterwear && (
+              <Pill size="sm" selected={hideOuterwear} onClick={() => setHideOuterwear(!hideOuterwear)}>
+                Hide outerwear
+              </Pill>
+            )}
+          </div>
 
-        {/* Pieces */}
-        <aside>
-          <p className="label">The Pieces</p>
-          <ul className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-1">
-            {outfit.items.map(({ slot, item }) => (
-              <li key={slot} className="group flex items-center gap-4">
-                <div className="h-20 w-[60px] shrink-0">
-                  <GarmentImage src={item.imageUrl} alt={item.name} />
-                </div>
-                <div className="min-w-0">
-                  <p className="label">{slot}</p>
-                  <p className="mt-1 text-sm">{item.name}</p>
-                </div>
-              </li>
-            ))}
+          <div className="flex justify-center rounded-[18px] border-[1.5px] border-track bg-cream px-2 pt-4">
+            <Model
+              style={style}
+              skinTone={skin}
+              hairColor={hair}
+              outfit={toModelOutfit(onModel)}
+              className="block h-auto w-full max-w-[300px]"
+            />
+          </div>
+
+          {/* Skin tone, then hair colour directly under it (design/model_v6/hair_colors.png) */}
+          <div className="mt-3 flex flex-col gap-2">
+            <div role="radiogroup" aria-label="Skin tone" className="flex flex-wrap items-center gap-2">
+              <span className={swatchLabel} aria-hidden="true">
+                Skin tone
+              </span>
+              {SKIN_TONES.map((tone, n) => (
+                <button
+                  key={tone}
+                  type="button"
+                  role="radio"
+                  aria-checked={skin === tone}
+                  aria-label={`Skin tone ${n + 1} of ${SKIN_TONES.length}`}
+                  onClick={() => store.setSkinTone(tone)}
+                  className={cx(swatch, skin === tone && swatchSelected)}
+                  style={{ background: tone }}
+                />
+              ))}
+            </div>
+            <div role="radiogroup" aria-label="Hair colour" className="flex flex-wrap items-center gap-2">
+              <span className={swatchLabel} aria-hidden="true">
+                Hair
+              </span>
+              {HAIR_COLORS.map((h) => (
+                <button
+                  key={h.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={hair === h.id}
+                  aria-label={`${h.name} hair`}
+                  onClick={() => store.setHairColor(h.id)}
+                  className={cx(swatch, hair === h.id && swatchSelected)}
+                  // Brown's swatch shows its root-to-ends balayage; the others are plain.
+                  style={{
+                    background:
+                      "ends" in h ? `linear-gradient(${h.hair} 0%, ${h.hair} 34%, ${h.ends} 78%, ${h.ends})` : h.hair,
+                  }}
+                />
+              ))}
+              <span className="ml-1 text-sm font-bold" aria-hidden="true">
+                {HAIR_COLORS.find((h) => h.id === hair)?.name}
+              </span>
+            </div>
+            <span className="text-[13px] text-muted">A drawing, not a photo of you</span>
+          </div>
+        </Card>
+
+        {/* The look */}
+        <Card as="section" aria-labelledby="look-title" className="p-4 sm:px-6 sm:py-[22px]">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 id="look-title" className="mr-1 text-xl font-black">
+              Today&apos;s look
+            </h2>
+            <Tag>{look.occasion}</Tag>
+            <Tag>
+              <span aria-hidden="true">{weather.icon} </span>
+              {weather.tempF}°F
+            </Tag>
+          </div>
+
+          <ul className="mt-2 divide-y-[1.5px] divide-track border-b-[1.5px] border-track">
+            {items.map(({ slot, item }) => {
+              const setAside = slot === "Bottom" && wearingDress;
+              const hidden = slot === "Outerwear" && hideOuterwear;
+              const canSwap = closetFor(slot, closet).some((p) => p.id !== item.id);
+              return (
+                <li key={slot} className="flex items-center gap-3 py-2.5 sm:gap-4">
+                  <div
+                    className={cx(
+                      "h-14 w-14 shrink-0 overflow-hidden rounded-xl border-2 border-ink sm:h-16 sm:w-16",
+                      (setAside || hidden) && "opacity-40",
+                    )}
+                  >
+                    <GarmentImage item={item} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-extrabold tracking-[0.06em] uppercase">{slot}</p>
+                    <p className={cx("font-bold sm:text-base", (setAside || hidden) && "text-muted")}>{item.name}</p>
+                    {setAside && <p className="text-[12.5px] text-muted">Not worn with a dress</p>}
+                    {hidden && <p className="text-[12.5px] text-muted">Hidden on the model</p>}
+                  </div>
+                  {canSwap && (
+                    <div className="flex shrink-0 gap-2">
+                      {([-1, 1] as const).map((step) => (
+                        <button
+                          key={step}
+                          type="button"
+                          onClick={() => swap(slot, step)}
+                          aria-label={`${step < 0 ? "Previous" : "Next"} ${slot.toLowerCase()}`}
+                          className="grid h-8 w-8 place-items-center rounded-full border-2 border-ink bg-white text-lg leading-none font-bold hover:bg-track focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-raspberry"
+                        >
+                          <span aria-hidden="true">{step < 0 ? "‹" : "›"}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
-        </aside>
+          <p className="sr-only" aria-live="polite">
+            {announcement}
+          </p>
+
+          <Note className="mt-4">
+            Swapping a piece re-checks the outfit rules: one top and bottom or a dress, one pair of shoes, up to two
+            accessories.
+          </Note>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button onClick={toggleSave} aria-pressed={savedId !== null}>
+              {savedId ? "Saved ✓" : "Save look"}
+            </Button>
+            <Button variant="secondary" href={`/stylist?${lookToQuery({ ...look, items: worn }, style, { skin, hair })}`}>
+              Ask the stylist
+            </Button>
+          </div>
+        </Card>
       </div>
-
-      {/* Rating */}
-      <section className="mt-16 max-w-xl border-t border-line pt-8">
-        <p className="text-sm">How well do these pieces work together?</p>
-        <div className="mt-4">
-          <RatingDots value={rating} onChange={setRating} />
-        </div>
-
-        <p className="mt-8 text-sm">Would you wear this?</p>
-        <div className="mt-4 flex gap-2">
-          {wearOptions.map((option) => (
-            <button
-              key={option}
-              onClick={() => setWear(option)}
-              className={`label border px-5 py-2 transition-colors ${
-                wear === option ? "border-accent bg-accent text-paper" : "border-line hover:border-ink hover:text-ink"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-8 flex items-center gap-6">
-          <button
-            onClick={() => setSubmitted(true)}
-            disabled={!rating || !wear}
-            className="label bg-accent px-6 py-3 text-paper hover:opacity-90 disabled:opacity-30"
-          >
-            Submit
-          </button>
-          {submitted && <p className="fade-in text-sm text-muted">Thank you. Noted.</p>}
-        </div>
-      </section>
     </div>
   );
 }

@@ -1,23 +1,27 @@
-// Row of text-style options. Active one gets a thin underline.
+import { Pill } from "@/components/ui";
+
+// Row of filter pills with optional counts. The selected one is filled ink with mustard text.
 interface Props {
   options: string[];
   selected: string;
   onSelect: (option: string) => void;
+  counts?: Record<string, number>;
+  label?: string;
 }
 
-export default function TextFilters({ options, selected, onSelect }: Props) {
+export default function TextFilters({ options, selected, onSelect, counts, label = "Filter" }: Props) {
   return (
-    <div className="flex gap-6 overflow-x-auto">
+    <div role="group" aria-label={label} className="flex flex-wrap gap-2">
       {options.map((option) => (
-        <button
+        <Pill
           key={option}
+          size="sm"
+          selected={selected === option}
+          count={counts?.[option]}
           onClick={() => onSelect(option)}
-          className={`label whitespace-nowrap border-b pb-1 transition-colors ${
-            selected === option ? "border-ink text-ink" : "border-transparent hover:text-ink"
-          }`}
         >
           {option}
-        </button>
+        </Pill>
       ))}
     </div>
   );
