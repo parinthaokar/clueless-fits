@@ -99,7 +99,7 @@ in the Supabase SQL Editor).
 |---|---|---|
 | `wardrobe_items` | `ClothingItem` | `category` uses the 7 app categories; `predicted_category` / `confidence` keep what `/predict` said |
 | `saved_outfits` | `SavedOutfit` | `rating` is 0–5, 0 = not rated yet |
-| `saved_outfit_items` | `OutfitItem` | one row per slot in a look; deleting a wardrobe item removes it from looks |
+| `saved_outfit_items` | `OutfitItem` | one row per piece in a look, with a copy of the piece in `item`; `item_id` links to the closet when it's the user's piece |
 | `user_settings` | `modelStyle`, `skinTone`, `hairColor` | one row per user |
 
 - **Access:** Row Level Security on every table. A signed-in user can only see

@@ -49,15 +49,20 @@ create table if not exists saved_outfits (
 
 create index if not exists saved_outfits_user_idx on saved_outfits (user_id, saved_at desc);
 
--- One row per piece in a look. Deleting a wardrobe item removes it from saved looks too.
+-- One row per piece in a look. Each row keeps a copy of the piece (`item`), so a look still
+-- shows it after the piece is removed from the closet, and looks can use the Stylist's demo
+-- pieces, which aren't in anyone's closet. `item_id` links back when the piece is the user's.
 create table if not exists saved_outfit_items (
+    id          uuid primary key default gen_random_uuid(),
     outfit_id   uuid not null references saved_outfits (id) on delete cascade,
+    position    smallint not null,              -- order of the piece in the look
     slot        text not null check (slot in
                     ('Top', 'Bottom', 'Outerwear', 'Shoes', 'Belt', 'Bag', 'Accessory')),
-    item_id     uuid not null references wardrobe_items (id) on delete cascade,
-    primary key (outfit_id, slot, item_id)
+    item_id     uuid references wardrobe_items (id) on delete set null,
+    item        jsonb not null                  -- ClothingItem when the look was saved (no photo data)
 );
 
+create index if not exists saved_outfit_items_outfit_idx on saved_outfit_items (outfit_id, position);
 create index if not exists saved_outfit_items_item_idx on saved_outfit_items (item_id);
 
 -- ---- per-user settings ------------------------------------------------------
@@ -87,14 +92,15 @@ create policy "own saved outfits" on saved_outfits
     for all to authenticated
     using (user_id = auth.uid()) with check (user_id = auth.uid());
 
--- A look's pieces are visible through the look; both the look and the item must be the user's.
+-- A look's pieces are visible through the look; a linked item must be the user's too.
 drop policy if exists "own saved outfit items" on saved_outfit_items;
 create policy "own saved outfit items" on saved_outfit_items
     for all to authenticated
     using (exists (select 1 from saved_outfits o where o.id = outfit_id and o.user_id = auth.uid()))
     with check (
         exists (select 1 from saved_outfits o where o.id = outfit_id and o.user_id = auth.uid())
-        and exists (select 1 from wardrobe_items w where w.id = item_id and w.user_id = auth.uid())
+        and (item_id is null
+             or exists (select 1 from wardrobe_items w where w.id = item_id and w.user_id = auth.uid()))
     );
 
 drop policy if exists "own settings" on user_settings;
