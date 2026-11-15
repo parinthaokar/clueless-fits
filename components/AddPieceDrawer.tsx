@@ -101,8 +101,8 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
   async function handleSave() {
     if (!name.trim() || !category || saving) return;
     setSaving(true);
-    // The closet is kept in localStorage, where a blob: URL wouldn't survive a reload,
-    // so store a small JPEG copy of the photo instead.
+    // A blob: URL wouldn't survive a reload, so keep a small JPEG copy of the photo instead
+    // (stored in localStorage, or uploaded to Supabase when signed in).
     const storedPhoto = photoUrl ? await shrinkPhoto(photoUrl) : undefined;
     onAdd({
       id: `new-${Date.now()}`,

@@ -1,10 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Logo, Pill } from "@/components/ui";
 import { currentUser, weather } from "@/lib/mockData";
+import { useStore } from "@/lib/store";
+
+const avatarClasses =
+  "grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full border-2 border-ink bg-mustard font-extrabold";
 
 const links = [
   { href: "/wardrobe", label: "Wardrobe" },
@@ -16,6 +21,7 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { account } = useStore();
 
   const navPills = links.map((link) => (
     <Pill key={link.href} href={link.href} selected={pathname.startsWith(link.href)}>
@@ -40,13 +46,24 @@ export default function Navbar() {
             <span aria-hidden="true">{weather.icon}</span> {weather.tempF}°F {weather.city}
           </Pill>
         </div>
-        <div
-          role="img"
-          aria-label={`Signed in as ${currentUser.name}`}
-          className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full border-2 border-ink bg-mustard font-extrabold"
-        >
-          {currentUser.initial}
-        </div>
+        {/* No Supabase: the demo guest. Signed in: their initial, linking to the account page. */}
+        {account.status === "off" ? (
+          <div role="img" aria-label={`Signed in as ${currentUser.name}`} className={avatarClasses}>
+            {currentUser.initial}
+          </div>
+        ) : account.email ? (
+          <Link
+            href="/sign-in"
+            aria-label={`Signed in as ${account.email}. Account`}
+            className={`${avatarClasses} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-raspberry`}
+          >
+            {account.email[0].toUpperCase()}
+          </Link>
+        ) : (
+          <Pill href="/sign-in" selected={pathname.startsWith("/sign-in")}>
+            Sign in
+          </Pill>
+        )}
 
         <button
           type="button"
