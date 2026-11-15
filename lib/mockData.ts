@@ -3,6 +3,7 @@ import type {
   Category,
   ChatMessage,
   ClothingItem,
+  ModelStyle,
   OutfitSuggestion,
   SavedOutfit,
 } from "./types";
@@ -65,6 +66,10 @@ export const wardrobeItems: ClothingItem[] = [
   piece("i22", "Stone Wide-Leg Trousers", "Bottoms", "wideleg", "stone", "2026-08-14"),
   piece("i23", "Black Loafers", "Shoes", "loafers", "black", "2026-08-10"),
   piece("i24", "Black Sunglasses", "Accessories", "sunglasses", "black", "2026-08-06"),
+  // v6 pieces (design/model_v6/notes.md)
+  piece("i25", "Grey Double-Breasted Blazer", "Outerwear", "dbblazer", "slate", "2026-08-02"),
+  piece("i26", "Grey Wide-Leg Trousers", "Bottoms", "suitpants", "slate", "2026-08-02"),
+  piece("i27", "Tortoiseshell Glasses", "Accessories", "glasses", "tortoise", "2026-07-29"),
 ];
 
 export const byId = (id: string) => wardrobeItems.find((i) => i.id === id);
@@ -113,18 +118,17 @@ export const workLook: OutfitSuggestion = {
   closetGap: "you have no rain jacket. If it rains this week, consider adding one.",
 };
 
-// design/model_v5 feminine reference
+// design/model_v6: the feminine model's default Work look (no bag)
 const tailoredLook: OutfitSuggestion = {
   id: "o7",
   occasion: "Work",
   items: [
-    { slot: "Top", item: get("i14") },
-    { slot: "Bottom", item: get("i16") },
+    { slot: "Bottom", item: get("i26") },
+    { slot: "Outerwear", item: get("i25") },
     { slot: "Shoes", item: get("i17") },
-    { slot: "Belt", item: get("i15") },
-    { slot: "Bag", item: get("i18") },
+    { slot: "Accessory", item: get("i27") },
   ],
-  why: "a crisp button-up tucked into wide-leg trousers reads sharp, the brown belt warms up the black, and pointed pumps with a structured bag finish it.",
+  why: "a grey double-breasted suit is sharp on its own: a deep V under the blazer keeps it modern, pointed black pumps lengthen the wide legs, and tortoiseshell glasses add warmth.",
   closetGap: "you have no rain jacket. If it rains this week, consider adding one.",
 };
 
@@ -143,7 +147,7 @@ const weekendLook: OutfitSuggestion = {
   why: "a crew tee, light-wash jeans and a denim jacket are an easy uniform; white sneakers and tinted shades keep it fun.",
 };
 
-// design/model_v5 masculine reference
+// design/model_v5 masculine reference (v6: the black sunglasses are no longer part of it)
 const leatherLook: OutfitSuggestion = {
   id: "o9",
   occasion: "Dinner",
@@ -154,7 +158,6 @@ const leatherLook: OutfitSuggestion = {
     { slot: "Outerwear", item: get("i19") },
     { slot: "Shoes", item: get("i23") },
     { slot: "Belt", item: get("i21") },
-    { slot: "Accessory", item: get("i24") },
   ],
   why: "a black leather jacket over a white tee is a classic; stone wide-leg trousers and loafers dress it up for dinner.",
 };
@@ -169,6 +172,14 @@ const partyLook: OutfitSuggestion = {
     { slot: "Accessory", item: get("i24") },
   ],
   why: "the pink slip dress is the star; the leather jacket and knee-high boots give it an edge.",
+};
+
+// What the Fitting Room's model wears when the URL names no look (no ?outfit, ?items or ?saved):
+// the v6 default for each body (design/model_v6/notes.md). The plaid Class look stays a Class
+// suggestion and a saved look.
+export const defaultLooks: Record<ModelStyle, OutfitSuggestion> = {
+  feminine: tailoredLook,
+  masculine: leatherLook,
 };
 
 export const savedOutfits: SavedOutfit[] = [
@@ -219,7 +230,7 @@ const saved = (id: string) => savedOutfits.find((o) => o.id === id)!;
 // What the mock stylist suggests for each occasion pill; Shuffle cycles through the list.
 export const looksByOccasion: Record<string, OutfitSuggestion[]> = {
   Class: [classLook, alternateLook],
-  Work: [workLook, tailoredLook],
+  Work: [tailoredLook, workLook],
   Dinner: [saved("o2"), leatherLook],
   Interview: [saved("o3"), tailoredLook],
   Party: [partyLook, saved("o2")],
@@ -233,7 +244,7 @@ export const mockConversation: ChatMessage[] = [
     id: "m2",
     role: "assistant",
     text: `It's ${weather.tempF}°F and ${weather.summary}, so a full suit works. Here's your look →`,
-    suggestion: workLook,
+    suggestion: tailoredLook,
   },
 ];
 

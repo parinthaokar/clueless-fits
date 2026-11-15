@@ -6,6 +6,8 @@ export const garmentColors = {
   cream: "#fffaf0",
   black: "#2b2724",
   grey: "#b9b4ab",
+  slate: "#9a9da2", // the v6 grey suit
+  tortoise: "#bdb79c", // tortoiseshell frames (drawn with their mottled pattern)
   mustard: "#f6c544",
   pink: "#f6a5c0",
   raspberry: "#c2185b",

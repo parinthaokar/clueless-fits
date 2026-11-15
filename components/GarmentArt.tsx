@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { DB_BUTTONS, TortoiseFrames } from "./Model";
 import { buckleColor, garmentColors, type ColorName } from "@/lib/colors";
 import type { GarmentKind, Pattern } from "@/lib/types";
 
@@ -8,7 +9,7 @@ const INK = "#1d1a16";
 const CANVAS = "#fbf7ee";
 
 type Shape = {
-  custom?: (fill: string) => React.ReactNode; // complete drawing; replaces body (no pattern)
+  custom?: (fill: string, id: string) => React.ReactNode; // complete drawing; replaces body (no pattern). id: unique per instance
   body: string; // filled, clipped for patterns, outlined
   before?: React.ReactNode; // drawn behind the body (bag handle, glasses bar)
   details?: React.ReactNode; // ink details drawn on top
@@ -110,6 +111,19 @@ const shapes: Record<GarmentKind, Shape> = {
     body: "M34 40 H86 A10 10 0 0 1 96 50 V86 A10 10 0 0 1 86 96 H34 A10 10 0 0 1 24 86 V50 A10 10 0 0 1 34 40 Z",
     details: line("M24 58 H96"),
   },
+  // v6 thumbnails, copied from design/model_v6/model_reference.html (drawn in model space, then fitted)
+  dbblazer: { body: "", custom: (fill) => <DbBlazerArt fill={fill} /> },
+  suitpants: { body: "", custom: (fill) => <SuitPantsArt fill={fill} /> },
+  glasses: {
+    body: "",
+    custom: (_fill, id) => (
+      <g transform="translate(-200 -66) scale(2.6)">
+        <TortoiseFrames id={`${id}-tort`} />
+        <path d="M84.4 45 L79.5 43.5" stroke={`url(#${id}-tort)`} strokeWidth={2.2} strokeLinecap="round" />
+        <path d="M115.6 45 L120.5 43.5" stroke={`url(#${id}-tort)`} strokeWidth={2.2} strokeLinecap="round" />
+      </g>
+    ),
+  },
   sunglasses: {
     before: line("M14 50 H106", 3),
     body:
@@ -117,6 +131,46 @@ const shapes: Record<GarmentKind, Shape> = {
       "M78 46 H90 A12 12 0 0 1 102 58 V60 A12 12 0 0 1 90 72 H78 A12 12 0 0 1 66 60 V58 A12 12 0 0 1 78 46 Z",
   },
 };
+
+const ST = { stroke: INK, strokeWidth: 2, strokeLinejoin: "round", strokeLinecap: "round" } as const;
+const SHADE: Record<string, string> = { "#9a9da2": "#7a7d82" }; // exact crease colour for the v6 grey
+
+function DbBlazerArt({ fill }: { fill: string }) {
+  // Paths verbatim from the reference; the framing is re-centred (its transform crops the left sleeve).
+  return (
+    <g transform="translate(-45 -77) scale(1.05)">
+      <path d="M70 84 Q84 88 94 84.5 L106 84.5 Q116 88 130 84 L128.5 101 Q121 118 119.5 133 Q123.5 152 124.5 175 Q112 178 100 178 Q88 178 75.5 175 Q76.5 152 80.5 133 Q79 118 71.5 101 Z" fill={fill} {...ST} />
+      <path d="M70 84 Q59.5 88 59 106 L58 170 L67.5 170 L69.5 128 Q70.5 110 71.5 101 Z" fill={fill} {...ST} />
+      <path d="M130 84 Q140.5 88 141 106 L142 170 L132.5 170 L130.5 128 Q129.5 110 128.5 101 Z" fill={fill} {...ST} />
+      <path d="M93.5 83.5 L106.5 83.5 L100 121.5 Z" fill={CANVAS} {...ST} />
+      <path d="M93.5 83 L100 121.5 L86 104 L79.5 93 L77.5 88 L84.5 91.8 L89 85.6 Z" fill={fill} {...ST} />
+      <path d="M106.5 83 L100 121.5 L114 104 L120.5 93 L122.5 88 L115.5 91.8 L111 85.6 Z" fill={fill} {...ST} />
+      <path d="M100 121 Q101.5 150 102.5 178" stroke={INK} strokeWidth={1.2} fill="none" />
+      <path
+        d="M78.5 156 L91 157 L90.6 162 L78.4 161.2 Z M121.5 156 L109 157 L109.4 162 L121.6 161.2 Z"
+        fill={fill}
+        stroke={INK}
+        strokeWidth={1.2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {DB_BUTTONS.map(([x, y]) => (
+        <circle key={`${x}-${y}`} cx={x} cy={y} r="1.9" fill="#2b2b2e" />
+      ))}
+    </g>
+  );
+}
+
+function SuitPantsArt({ fill }: { fill: string }) {
+  // Paths verbatim from the reference; the framing is re-centred in the 120 x 120 box.
+  return (
+    <g transform="translate(-20 -114.4) scale(.8)">
+      <path d="M78 156 H122 L130 280 H102 L100 178 L98 280 H70 Z" fill={fill} {...ST} />
+      <path d="M78 156 H122 V166 H78 Z" fill={fill} {...ST} />
+      <path d="M88.5 172 L85 278 M111.5 172 L115 278" stroke={SHADE[fill] ?? INK} strokeOpacity={SHADE[fill] ? 1 : 0.35} strokeWidth={1.4} />
+    </g>
+  );
+}
 
 // Shoes from design/model_v5/shoes.tsx
 // One pump, drawn in a 319 x 282 space: toe bottom-left, heel cup top-right.
@@ -232,7 +286,7 @@ export default function GarmentArt({ kind, color, pattern = "solid", label, back
     <svg viewBox="0 0 120 120" role="img" aria-label={label} className={className ?? "block h-full w-full"}>
       {background && <rect width="120" height="120" fill={background} />}
       {shape.before}
-      {shape.custom?.(fill)}
+      {shape.custom?.(fill, clipId)}
       {!shape.custom && <path d={shape.body} fill={fill} />}
       {!shape.custom && pattern !== "solid" && (
         <>

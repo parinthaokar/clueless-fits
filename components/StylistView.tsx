@@ -6,14 +6,14 @@ import GarmentImage from "@/components/GarmentImage";
 import Model from "@/components/Model";
 import { Button, Card, Pill, RatingDots, Tag, Warn } from "@/components/ui";
 import { looksByOccasion, mockConversation, occasions, wardrobeItems, weather } from "@/lib/mockData";
-import { lookFromQuery, lookToQuery, sortBySlot, toModelOutfit } from "@/lib/outfit";
-import { useStore } from "@/lib/store";
+import { appearanceFromQuery, lookFromQuery, lookToQuery, sortBySlot, toModelOutfit } from "@/lib/outfit";
+import { useAdoptAppearance, useStore } from "@/lib/store";
 import type { ChatMessage, OutfitSuggestion } from "@/lib/types";
 
 // design/screens/4_stylist.png. The "AI" is mocked: each occasion has a short list of looks
 // (lib/mockData.ts looksByOccasion) and Shuffle / "Ask for a change" step through it.
 // "Ask the stylist" in the Fitting Room comes back here with that look in the URL.
-export type StylistParams = { items?: string; occasion?: string; model?: string };
+export type StylistParams = { items?: string; occasion?: string; model?: string; skin?: string; hair?: string };
 
 const lookFor = (occasion: string, index: number): OutfitSuggestion => {
   const pool = looksByOccasion[occasion];
@@ -25,6 +25,11 @@ const FROM_FITTING_ROOM =
 
 export default function StylistView({ params }: { params: StylistParams }) {
   const store = useStore();
+  // Skin tone and hair colour come from the store; one handed over in the URL is adopted into it.
+  const appearance = appearanceFromQuery(params.skin, params.hair);
+  useAdoptAppearance(appearance);
+  const skin = appearance.skin ?? store.skinTone;
+  const hair = appearance.hair ?? store.hairColor;
   const [occasion, setOccasion] = useState(
     params.occasion && occasions.includes(params.occasion) ? params.occasion : "Work",
   );
@@ -190,7 +195,7 @@ export default function StylistView({ params }: { params: StylistParams }) {
 
         <div className="mt-5 grid gap-5 md:grid-cols-[200px_1fr]">
           <div className="mx-auto flex w-full max-w-[220px] flex-col self-start items-center rounded-[18px] border-[1.5px] border-track bg-cream px-2 pt-3 pb-2.5 md:max-w-none">
-            <Model style={model} skinTone={store.skinTone} outfit={toModelOutfit(look.items)} className="block h-auto w-full max-w-[180px]" />
+            <Model style={model} skinTone={skin} hairColor={hair} outfit={toModelOutfit(look.items)} className="block h-auto w-full max-w-[180px]" />
             <Tag className="mt-1 bg-white">On your model</Tag>
           </div>
 
@@ -222,7 +227,7 @@ export default function StylistView({ params }: { params: StylistParams }) {
           <Button onClick={toggleSave} aria-pressed={savedId !== null}>
             {savedId ? "Saved ✓" : "Save look"}
           </Button>
-          <Button variant="secondary" href={`/fitting-room?${lookToQuery(look, model)}`}>
+          <Button variant="secondary" href={`/fitting-room?${lookToQuery(look, model, { skin, hair })}`}>
             Open in Fitting Room
           </Button>
           <div className="flex items-center gap-2 sm:ml-auto">

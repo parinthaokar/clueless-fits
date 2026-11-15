@@ -2,57 +2,92 @@
 
 import { useState } from "react";
 import GarmentImage from "@/components/GarmentImage";
-import Model, { SKIN_TONES } from "@/components/Model";
+import Model, { HAIR_COLORS, SKIN_TONES } from "@/components/Model";
 import { Button, Card, Note, Pill, Tag } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
-import { classLook, getOutfitById, wardrobeItems, weather } from "@/lib/mockData";
-import { closetFor, isDress, lookFromQuery, lookToQuery, sortBySlot, toModelOutfit } from "@/lib/outfit";
-import { useStore } from "@/lib/store";
+import { defaultLooks, getOutfitById, wardrobeItems, weather } from "@/lib/mockData";
+import {
+  appearanceFromQuery,
+  closetFor,
+  isDress,
+  lookFromQuery,
+  lookToQuery,
+  sortBySlot,
+  toModelOutfit,
+} from "@/lib/outfit";
+import { useAdoptAppearance, useStore } from "@/lib/store";
 import type { LookSlot, ModelStyle, OutfitItem, OutfitSuggestion } from "@/lib/types";
 
 // design/screens/5_fitting_room.png and 6_fitting_room_masc.png.
 // Swaps cycle through closet items that fit the slot (lib/outfit.ts closetFor), including
-// pieces added in the Wardrobe. Model style and skin tone are shared with the Stylist via the store.
+// pieces added in the Wardrobe. Model style, skin tone and hair colour are shared with the
+// Stylist and Saved via the store, and also travel in the URL (?skin=…&hair=…).
 
-export type FittingRoomParams = { outfit?: string; items?: string; occasion?: string; model?: string; saved?: string };
+export type FittingRoomParams = {
+  outfit?: string;
+  items?: string;
+  occasion?: string;
+  model?: string;
+  saved?: string;
+  skin?: string;
+  hair?: string;
+};
 
 const styles: { value: ModelStyle; label: string }[] = [
   { value: "feminine", label: "Feminine" },
   { value: "masculine", label: "Masculine" },
 ];
 
+const swatchLabel = "w-[72px] shrink-0 text-[11px] font-extrabold tracking-[0.06em] uppercase";
+const swatch =
+  "h-[26px] w-[26px] rounded-full border-2 border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-raspberry";
+const swatchSelected = "ring-[3px] ring-mustard ring-offset-1 ring-offset-white";
+
 const asModelStyle = (v: string | undefined): ModelStyle | undefined =>
   v === "feminine" || v === "masculine" ? v : undefined;
 
 export default function FittingRoomView({ params }: { params: FittingRoomParams }) {
   const { closet, saved, modelStyle, ready } = useStore();
+  useAdoptAppearance(appearanceFromQuery(params.skin, params.hair));
 
   // Pieces the Stylist suggests come from the demo closet, so look ids up there too.
   const known = [...closet, ...wardrobeItems];
+  // Only an explicit look in the URL (or a saved look it names) overrides the default outfit.
   const savedLook = params.saved ? saved.find((l) => l.id === params.saved) : undefined;
-  const look =
+  const urlLook =
     savedLook ??
     (params.items ? lookFromQuery(params.items, known, params.occasion) : undefined) ??
-    getOutfitById(params.outfit) ??
-    classLook;
-  const initialModel = asModelStyle(params.model) ?? savedLook?.model ?? modelStyle ?? look.model ?? "feminine";
+    getOutfitById(params.outfit);
+  const initialModel = asModelStyle(params.model) ?? savedLook?.model ?? modelStyle ?? urlLook?.model ?? "feminine";
 
   // key: a new URL (or the stored closet arriving after hydration) starts a fresh fitting.
   return (
     <Fitting
       key={`${ready}|${JSON.stringify(params)}`}
-      look={look}
+      look={urlLook ?? defaultLooks[initialModel]}
+      isDefault={!urlLook}
       initialModel={initialModel}
       savedId={savedLook?.id ?? null}
     />
   );
 }
 
-function Fitting({ look, initialModel, savedId: initialSavedId }: { look: OutfitSuggestion; initialModel: ModelStyle; savedId: string | null }) {
+interface FittingProps {
+  look: OutfitSuggestion;
+  /** true when the URL named no look, so the model wears its body's default outfit */
+  isDefault: boolean;
+  initialModel: ModelStyle;
+  savedId: string | null;
+}
+
+function Fitting({ look: initialLook, isDefault, initialModel, savedId: initialSavedId }: FittingProps) {
   const store = useStore();
-  const { closet, skinTone: skin } = store;
+  const { closet, skinTone: skin, hairColor: hair } = store;
   const [style, setStyle] = useState<ModelStyle>(initialModel);
-  const [items, setItems] = useState<OutfitItem[]>(() => sortBySlot(look.items));
+  const [look, setLook] = useState<OutfitSuggestion>(initialLook);
+  const [items, setItems] = useState<OutfitItem[]>(() => sortBySlot(initialLook.items));
+  // Still wearing an untouched default outfit: switching body switches to that body's default.
+  const [onDefault, setOnDefault] = useState(isDefault);
   const [hideOuterwear, setHideOuterwear] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(initialSavedId);
   const [announcement, setAnnouncement] = useState("");
@@ -68,6 +103,7 @@ function Fitting({ look, initialModel, savedId: initialSavedId }: { look: Outfit
     // A piece no longer in the closet: › goes to the first, ‹ to the last.
     const next = at < 0 ? pool[step > 0 ? 0 : pool.length - 1] : pool[(at + step + pool.length) % pool.length];
     setItems(items.map((i) => (i.slot === slot ? { slot, item: next } : i)));
+    setOnDefault(false);
     setSavedId(null);
     setAnnouncement(`${slot}: ${next.name}`);
   }
@@ -75,6 +111,14 @@ function Fitting({ look, initialModel, savedId: initialSavedId }: { look: Outfit
   function pickStyle(value: ModelStyle) {
     setStyle(value);
     store.setModelStyle(value);
+    if (onDefault && value !== style) {
+      const next = defaultLooks[value];
+      setLook(next);
+      setItems(sortBySlot(next.items));
+      setHideOuterwear(false);
+      setSavedId(null);
+      setAnnouncement(`Showing the ${value} default look`);
+    }
   }
 
   // The look as worn: a bottom set aside under a dress isn't part of it.
@@ -121,14 +165,16 @@ function Fitting({ look, initialModel, savedId: initialSavedId }: { look: Outfit
             <Model
               style={style}
               skinTone={skin}
+              hairColor={hair}
               outfit={toModelOutfit(onModel)}
               className="block h-auto w-full max-w-[300px]"
             />
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <div role="radiogroup" aria-label="Skin tone" className="flex items-center gap-2">
-              <span className="mr-1 text-sm font-bold" aria-hidden="true">
+          {/* Skin tone, then hair colour directly under it (design/model_v6/hair_colors.png) */}
+          <div className="mt-3 flex flex-col gap-2">
+            <div role="radiogroup" aria-label="Skin tone" className="flex flex-wrap items-center gap-2">
+              <span className={swatchLabel} aria-hidden="true">
                 Skin tone
               </span>
               {SKIN_TONES.map((tone, n) => (
@@ -139,15 +185,36 @@ function Fitting({ look, initialModel, savedId: initialSavedId }: { look: Outfit
                   aria-checked={skin === tone}
                   aria-label={`Skin tone ${n + 1} of ${SKIN_TONES.length}`}
                   onClick={() => store.setSkinTone(tone)}
-                  className={cx(
-                    "h-[26px] w-[26px] rounded-full border-2 border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-raspberry",
-                    skin === tone && "ring-[3px] ring-mustard ring-offset-1 ring-offset-white",
-                  )}
+                  className={cx(swatch, skin === tone && swatchSelected)}
                   style={{ background: tone }}
                 />
               ))}
             </div>
-            <span className="text-[13px] text-muted sm:ml-auto">A drawing, not a photo of you</span>
+            <div role="radiogroup" aria-label="Hair colour" className="flex flex-wrap items-center gap-2">
+              <span className={swatchLabel} aria-hidden="true">
+                Hair
+              </span>
+              {HAIR_COLORS.map((h) => (
+                <button
+                  key={h.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={hair === h.id}
+                  aria-label={`${h.name} hair`}
+                  onClick={() => store.setHairColor(h.id)}
+                  className={cx(swatch, hair === h.id && swatchSelected)}
+                  // Brown's swatch shows its root-to-ends balayage; the others are plain.
+                  style={{
+                    background:
+                      "ends" in h ? `linear-gradient(${h.hair} 0%, ${h.hair} 34%, ${h.ends} 78%, ${h.ends})` : h.hair,
+                  }}
+                />
+              ))}
+              <span className="ml-1 text-sm font-bold" aria-hidden="true">
+                {HAIR_COLORS.find((h) => h.id === hair)?.name}
+              </span>
+            </div>
+            <span className="text-[13px] text-muted">A drawing, not a photo of you</span>
           </div>
         </Card>
 
@@ -217,7 +284,7 @@ function Fitting({ look, initialModel, savedId: initialSavedId }: { look: Outfit
             <Button onClick={toggleSave} aria-pressed={savedId !== null}>
               {savedId ? "Saved ✓" : "Save look"}
             </Button>
-            <Button variant="secondary" href={`/stylist?${lookToQuery({ ...look, items: worn }, style)}`}>
+            <Button variant="secondary" href={`/stylist?${lookToQuery({ ...look, items: worn }, style, { skin, hair })}`}>
               Ask the stylist
             </Button>
           </div>

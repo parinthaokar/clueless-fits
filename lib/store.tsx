@@ -1,16 +1,17 @@
 "use client";
 
-// Shared client store: closet items, saved looks (with ratings) and the chosen model style
-// and skin tone. Kept in localStorage so it survives reloads.
+// Shared client store: closet items, saved looks (with ratings) and the chosen model style,
+// skin tone and hair colour. Kept in localStorage so it survives reloads.
 //
 // - Starts from the mock data in lib/mockData.ts when storage is empty (or unreadable).
 // - Every localStorage read and write is wrapped in try/catch: private windows, full quota
 //   or blocked storage just mean the store lives in memory for this visit.
 // - Built on useSyncExternalStore, so the server render and the first client render use the
 //   mock data and React swaps in the stored data right after hydration (no mismatch).
-import { createContext, useContext, useMemo, useSyncExternalStore } from "react";
-import { SKIN_TONES, type SkinTone } from "@/components/Model";
+import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
+import { DEFAULT_HAIR, HAIR_COLORS, SKIN_TONES, type HairColor, type SkinTone } from "@/components/Model";
 import { savedOutfits, wardrobeItems } from "./mockData";
+import type { Appearance } from "./outfit";
 import type { ClothingItem, ModelStyle, OutfitSuggestion, SavedOutfit } from "./types";
 
 export interface StoreState {
@@ -19,6 +20,9 @@ export interface StoreState {
   /** null until the user picks a body in the Fitting Room; until then each look uses its own. */
   modelStyle: ModelStyle | null;
   skinTone: SkinTone;
+  hairColor: HairColor;
+  /** Which demo-closet additions this state has seen (see SEED_ADDITIONS). */
+  seed: number;
 }
 
 const STORAGE_KEY = "clueless-closet:v1";
@@ -28,12 +32,27 @@ const initialState: StoreState = {
   saved: savedOutfits,
   modelStyle: null,
   skinTone: SKIN_TONES[2],
+  hairColor: DEFAULT_HAIR,
+  seed: 2,
 };
+
+// Demo pieces added after people may already have a stored closet. Each is added once to a
+// stored closet that predates it, so a piece the user later removes stays removed.
+const SEED_ADDITIONS: { seed: number; ids: string[] }[] = [
+  { seed: 2, ids: ["i25", "i26", "i27"] }, // v6 grey suit and tortoiseshell glasses
+];
+
+function withSeedAdditions(closet: ClothingItem[], seenSeed: number) {
+  const ids = SEED_ADDITIONS.filter((a) => a.seed > seenSeed).flatMap((a) => a.ids);
+  const missing = wardrobeItems.filter((i) => ids.includes(i.id) && !closet.some((c) => c.id === i.id));
+  return [...closet, ...missing];
+}
 
 // ---- storage -------------------------------------------------------------------------------
 
 const isModelStyle = (v: unknown): v is ModelStyle => v === "feminine" || v === "masculine";
 const isSkinTone = (v: unknown): v is SkinTone => SKIN_TONES.includes(v as SkinTone);
+const isHairColor = (v: unknown): v is HairColor => HAIR_COLORS.some((h) => h.id === v);
 
 // Blob URLs from an earlier visit point at nothing, so drop them (the drawing is used instead).
 const withLivePhoto = (item: ClothingItem): ClothingItem =>
@@ -43,13 +62,18 @@ const withLivePhoto = (item: ClothingItem): ClothingItem =>
 function parse(raw: string | null): StoreState {
   if (!raw) return initialState;
   const data = JSON.parse(raw) as Partial<StoreState>;
+  const seen = typeof data.seed === "number" ? data.seed : 1;
   return {
-    closet: Array.isArray(data.closet) ? data.closet.map(withLivePhoto) : initialState.closet,
+    closet: Array.isArray(data.closet)
+      ? withSeedAdditions(data.closet.map(withLivePhoto), seen)
+      : initialState.closet,
     saved: Array.isArray(data.saved)
       ? data.saved.map((look) => ({ ...look, items: look.items.map((i) => ({ ...i, item: withLivePhoto(i.item) })) }))
       : initialState.saved,
     modelStyle: isModelStyle(data.modelStyle) ? data.modelStyle : null,
     skinTone: isSkinTone(data.skinTone) ? data.skinTone : initialState.skinTone,
+    hairColor: isHairColor(data.hairColor) ? data.hairColor : initialState.hairColor,
+    seed: initialState.seed,
   };
 }
 
@@ -136,6 +160,7 @@ const actions = {
 
   setModelStyle: (modelStyle: ModelStyle) => update((s) => ({ ...s, modelStyle })),
   setSkinTone: (skinTone: SkinTone) => update((s) => ({ ...s, skinTone })),
+  setHairColor: (hairColor: HairColor) => update((s) => ({ ...s, hairColor })),
 };
 
 // ---- React -----------------------------------------------------------------------------------
@@ -157,4 +182,18 @@ export function useStore(): Store {
   const store = useContext(StoreContext);
   if (!store) throw new Error("useStore must be used inside <StoreProvider>");
   return store;
+}
+
+/**
+ * A skin tone / hair colour handed over in the URL (Stylist ⇄ Fitting Room, Saved) becomes the
+ * stored choice, so every page shows the same model. Runs once the stored data has loaded.
+ */
+export function useAdoptAppearance({ skin, hair }: Appearance) {
+  const { ready } = useStore();
+  useEffect(() => {
+    if (!ready) return;
+    const current = getSnapshot();
+    if (skin && skin !== current.skinTone) actions.setSkinTone(skin);
+    if (hair && hair !== current.hairColor) actions.setHairColor(hair);
+  }, [ready, skin, hair]);
 }

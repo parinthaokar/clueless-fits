@@ -40,7 +40,10 @@ export type GarmentKind =
   | "loafers"
   | "bag" // shoulder bag
   | "tophandle" // top-handle bag
-  | "sunglasses";
+  | "sunglasses"
+  | "dbblazer" // double-breasted blazer (v6)
+  | "suitpants" // pressed wide-leg suit trousers (v6)
+  | "glasses"; // tortoiseshell glasses (v6)
 
 export type Pattern = "solid" | "plaid" | "stripe";
 

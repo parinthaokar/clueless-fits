@@ -4,7 +4,7 @@ import { useState } from "react";
 import EmptyState from "@/components/EmptyState";
 import Model from "@/components/Model";
 import { Button, Card, Pill, RatingDots, Tag } from "@/components/ui";
-import { sortBySlot, toModelOutfit } from "@/lib/outfit";
+import { sortBySlot, toModelOutfit, withAppearance } from "@/lib/outfit";
 import { useStore } from "@/lib/store";
 import type { SavedOutfit } from "@/lib/types";
 
@@ -80,7 +80,7 @@ export default function SavedPage() {
 }
 
 function SavedLookCard({ look, onDelete }: { look: SavedOutfit; onDelete: () => void }) {
-  const { modelStyle, skinTone, rateLook } = useStore();
+  const { modelStyle, skinTone, hairColor, rateLook } = useStore();
   const titleId = `saved-${look.id}`;
   const items = sortBySlot(look.items);
 
@@ -91,6 +91,7 @@ function SavedLookCard({ look, onDelete }: { look: SavedOutfit; onDelete: () => 
           <Model
             style={look.model ?? modelStyle ?? "feminine"}
             skinTone={skinTone}
+            hairColor={hairColor}
             outfit={toModelOutfit(items)}
             className="block h-auto w-full"
           />
@@ -125,7 +126,7 @@ function SavedLookCard({ look, onDelete }: { look: SavedOutfit; onDelete: () => 
       </div>
 
       <div className="mt-auto flex flex-wrap gap-3 pt-4">
-        <Button href={`/fitting-room?saved=${encodeURIComponent(look.id)}`}>Open in Fitting Room</Button>
+        <Button href={`/fitting-room?${withAppearance(new URLSearchParams({ saved: look.id }), { skin: skinTone, hair: hairColor })}`}>Open in Fitting Room</Button>
         <Button variant="secondary" onClick={onDelete} aria-label={`Delete the ${look.occasion} look`}>
           Delete
         </Button>

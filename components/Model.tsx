@@ -1,18 +1,12 @@
 import { useId } from "react";
 import { buckleColor as buckle, garmentColors } from "@/lib/colors";
 import type { ClothingItem, GarmentKind, LookSlot, ModelStyle, Pattern } from "@/lib/types";
-import {
-  FEM_HAIR_BACK,
-  FEM_HAIR_CAP,
-  FEM_HAIR_FRONT,
-  FEM_HAIR_PART,
-  FEM_HAIR_STRANDS,
-  FEM_HAIR_SWEEPS,
-} from "./modelHair";
+import { BALAYAGE, FEM_HAIR_BACK, FEM_HAIR_FRONT, FEM_HAIR_PART, FEM_HAIR_STRANDS, FEM_HAIR_SWOOPS } from "./modelHair";
 
 // The Fitting Room / Stylist model: a flat SVG drawing (never a photo), 200×330 canvas.
-// Paths are copied from design/model_v5/model_reference.html (v5), falling back to
-// design/html/model_styles.html and the fitting-room mockups for pieces v5 doesn't show.
+// Paths are copied from design/model_v6/model_reference.html (v6: feminine hair, grey
+// double-breasted suit, tortoiseshell glasses) and design/model_v5/model_reference.html (v5),
+// falling back to design/html/model_styles.html and the fitting-room mockups.
 // Layers, back to front (v5 tucks tops into bottoms, so the bottom is drawn before the top):
 //   hair (back), arms + legs, shoes, bottom, top, belt, outerwear, shoulder bag, hands,
 //   bag in hand, ears + head + neck, collars, face, sunglasses, hair (front)
@@ -22,21 +16,26 @@ export type { ModelStyle };
 export const SKIN_TONES = ["#f3d4bf", "#e2b08c", "#c98e6b", "#9a6646", "#5e3b28"] as const;
 export type SkinTone = (typeof SKIN_TONES)[number];
 
-// Hair follows skin tone (design/model_v5/notes.md).
-export const HAIR_COLORS: Record<SkinTone, { hair: string; strand: string }> = {
-  "#f3d4bf": { hair: "#6b4430", strand: "#9a6a4c" },
-  "#e2b08c": { hair: "#4a2c1d", strand: "#7a5038" },
-  "#c98e6b": { hair: "#33231a", strand: "#5e4434" },
-  "#9a6646": { hair: "#211611", strand: "#4a352a" },
-  "#5e3b28": { hair: "#141010", strand: "#3a302c" },
-};
+// Hair colour is its own setting (design/model_v6/notes.md). Only Brown, the default, has
+// balayage ends; the others are a plain fill with lighter strand lines. Brows use the root colour.
+export const HAIR_COLORS = [
+  { id: "black", name: "Black", hair: "#141010", strand: "#3a302c" },
+  { id: "darkBrown", name: "Dark brown", hair: "#33231a", strand: "#5e4434" },
+  { id: "brown", name: "Brown", hair: "#4a2c1d", strand: "#7a5038", ends: "#a87a4e" },
+  { id: "lightBrown", name: "Light brown", hair: "#6b4430", strand: "#9a6a4c" },
+  { id: "blonde", name: "Blonde", hair: "#b8894a", strand: "#dcb87c" },
+  { id: "auburn", name: "Auburn", hair: "#7a3220", strand: "#a8573a" },
+] as const;
+export type HairColor = (typeof HAIR_COLORS)[number]["id"];
+export const DEFAULT_HAIR: HairColor = "brown";
+type HairSpec = { hair: string; strand: string; ends?: string };
+const hairSpec = (id: HairColor): HairSpec => HAIR_COLORS.find((h) => h.id === id) ?? HAIR_COLORS[2];
 
 // One item per slot (see LookSlot in lib/types.ts).
 export type ModelSlot = LookSlot;
 export type ModelOutfit = Partial<Record<ModelSlot, ClothingItem>>;
 
 const INK = "#1d1a16";
-const BROW = "#3b2a20"; // brows stay this colour in every v5 skin tone
 const BASE = "#f4eee2"; // plain tank / shorts drawn when a slot is empty
 const GOLD = "#c9a35c";
 
@@ -52,11 +51,18 @@ const luminance = (hex: string) => {
 };
 /** Lighter shade on dark fabric, darker shade on light fabric. */
 const accentOf = (hex: string) => (luminance(hex) < 0.5 ? mix(hex, 255, 0.24) : mix(hex, 0, 0.18));
+/** Darker and lighter shades; the v6 grey suit's exact ones come from the reference. */
+const EXACT_SHADES: Record<string, { dark: string; light: string }> = {
+  "#9a9da2": { dark: "#7a7d82", light: "#b4b7bb" },
+};
+const shadesOf = (hex: string) => EXACT_SHADES[hex] ?? { dark: mix(hex, 0, 0.2), light: mix(hex, 255, 0.2) };
 
 // ---------------------------------------------------------------------------------------------
 // Garment shapes
 
-type Ctx = { fill: string; accent: string; skin: string };
+// fill: item colour; accent: one derived shade; dark/light: the two shades v6 uses for seams,
+// creases and lapel edges; id: unique per garment per Model, for <pattern> ids.
+type Ctx = { fill: string; accent: string; dark: string; light: string; skin: string; id: string };
 type Draw = React.ReactNode | ((c: Ctx) => React.ReactNode);
 const render = (d: Draw, c: Ctx) => (typeof d === "function" ? d(c) : d);
 
@@ -68,6 +74,7 @@ type Piece = {
 };
 
 type Shape = Piece & {
+  over?: Piece; // a second piece drawn completely on top of the first (v6 blazer sleeves)
   collar?: Piece; // drawn after the neck, so it sits over it
   scaleX?: number; // horizontal scale around x=100, to fit a shape drawn for the other body
   shift?: [number, number]; // move a shape drawn for the other body (e.g. a bag to the other hand)
@@ -93,8 +100,8 @@ const body = {
       "M130 86 Q139 91 139.5 110 L140.5 186 L134 186 L131 122 Z",
     ],
     hands: [
-      { cx: 62.5, cy: 192, rx: 4.8, ry: 7.2 },
-      { cx: 137.5, cy: 191, rx: 4.8, ry: 7 },
+      { cx: 62.6, cy: 191, rx: 4.8, ry: 7.2 },
+      { cx: 137.4, cy: 191, rx: 4.8, ry: 7.2 },
     ],
     neck: { fill: "M94 70.8 Q100 72.8 106 70.8 L106 84 Q100 88 94 84 Z", sides: "M94 72.3 L94 84 M106 72.3 L106 84", shadow: "M95 76 Q100 79 105 76" },
   },
@@ -281,6 +288,139 @@ const LEATHER: Shape = {
   },
 };
 
+// v6 ------------------------------------------------------------------------------------------
+// design/model_v6/model_reference.html. Fixed colours: buttons and the gold chain.
+const BUTTON = "#2b2b2e";
+const THIN = { stroke: INK, strokeWidth: 1.2, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+
+// Fitted double-breasted blazer: structured shoulders, nipped waist, hip-length, sleeves on top.
+const DB_BLAZER: Shape = {
+  parts: [
+    "M70 84 Q84 88 94 84.5 L106 84.5 Q116 88 130 84 L128.5 101 Q121 118 119.5 133 Q123.5 152 124.5 175 Q112 178 100 178 Q88 178 75.5 175 Q76.5 152 80.5 133 Q79 118 71.5 101 Z",
+  ],
+  // princess seams, front edge of the overlap, flap pockets, breast welt
+  details: ({ fill, dark }) => (
+    <>
+      <path
+        d="M84 104 Q82.5 120 86 134 Q87.5 152 86.5 176 M116 104 Q117.5 120 114 134 Q112.5 152 113.5 176"
+        stroke={dark}
+        strokeWidth={1}
+        fill="none"
+      />
+      <path d="M100 121 Q101.5 150 102.5 178" stroke={INK} strokeWidth={1.2} fill="none" />
+      <path
+        d="M78.5 156 L91 157 L90.6 162 L78.4 161.2 Z M121.5 156 L109 157 L109.4 162 L121.6 161.2 Z"
+        fill={fill}
+        {...THIN}
+      />
+      <path d="M109.5 111 L119 108.5" stroke={INK} strokeWidth={1.4} strokeLinecap="round" />
+    </>
+  ),
+  over: {
+    parts: [
+      "M70 84 Q59.5 88 59 106 L58 184 L67.5 184 L69.5 128 Q70.5 110 71.5 101 Z",
+      "M130 84 Q140.5 88 141 106 L142 184 L132.5 184 L130.5 128 Q129.5 110 128.5 101 Z",
+    ],
+    details: ({ dark }) => (
+      <>
+        <path d="M64 120 Q63.5 140 63 160 M136 120 Q136.5 140 137 160" stroke={dark} strokeWidth={0.9} fill="none" />
+        <path d="M58.4 178 H67.4 M132.6 178 H141.6" stroke={dark} strokeWidth={1} />
+        <circle cx="60.6" cy="181" r=".8" fill={BUTTON} />
+        <circle cx="139.4" cy="181" r=".8" fill={BUTTON} />
+      </>
+    ),
+  },
+  // Deep V with skin (no shirt) and a fine gold chain, then peak lapels and six buttons.
+  collar: {
+    under: ({ skin }) => (
+      <>
+        <path d="M93.5 83.5 L106.5 83.5 L100 121.5 Z" fill={skin} />
+        <path d="M95.6 86 Q100 98 104.4 86" stroke={GOLD} strokeWidth={0.7} fill="none" />
+        <circle cx="100" cy="97.6" r="1" fill={GOLD} />
+      </>
+    ),
+    parts: [
+      "M93.5 83 L100 121.5 L86 104 L79.5 93 L77.5 88 L84.5 91.8 L89 85.6 Z",
+      "M106.5 83 L100 121.5 L114 104 L120.5 93 L122.5 88 L115.5 91.8 L111 85.6 Z",
+    ],
+    details: ({ light }) => (
+      <>
+        <path d="M91.5 89 L98 116 M108.5 89 L102 116" stroke={light} strokeWidth={0.9} />
+        {DB_BUTTONS.map(([x, y]) => (
+          <g key={`${x}-${y}`}>
+            <circle cx={x} cy={y} r="1.7" fill={BUTTON} />
+            <circle cx={x - 0.5} cy={y - 0.5} r=".5" fill="#ffffff" fillOpacity={0.5} />
+          </g>
+        ))}
+      </>
+    ),
+  },
+};
+
+export const DB_BUTTONS = [
+  [91.5, 127],
+  [108.5, 127],
+  [93, 139],
+  [107, 139],
+  [93, 151],
+  [107, 151],
+] as const;
+
+// Matching wide-leg trousers, full length, pressed creases. The reference path starts at y=158,
+// under the hip-length blazer. The waistband part above it is hidden by the blazer and joins the
+// trousers to a tucked top when they're worn without it.
+const SUIT_PANTS: Shape = {
+  parts: [
+    "M78 158 Q100 162 122 158 L130 304 H102 L100 182 L98 304 H70 Z",
+    "M77 140 Q100 144 123 140 L122 158 Q100 162 78 158 Z",
+  ],
+  details: ({ dark, light }) => (
+    <>
+      <path d="M88.5 178 L85 302 M111.5 178 L115 302" stroke={dark} strokeWidth={1.3} />
+      <path d="M89.5 178 L86.5 302 M110.5 178 L113.5 302" stroke={light} strokeWidth={0.8} />
+    </>
+  ),
+};
+
+// Tortoiseshell glasses: soft rectangles with lifted outer corners, greige/brown/mint mottling,
+// white lenses at 14% with a shine line.
+const TORT_OUTER = "M83.8 43.2 Q92 43.4 99.6 45.1 L99.3 51.4 Q98.9 55.6 94.4 55.6 H89 Q85.6 55.4 85.2 51.6 Z";
+const TORT_INNER = "M85.7 45.2 Q92 45.1 98.2 46.4 L98 51.2 Q97.7 54.1 94.2 54.1 H89.3 Q87 54 86.7 51.3 Z";
+
+/** Both lenses and the bridge, with their own tortoise <pattern> (`id` must be unique). Also used by GarmentArt. */
+export function TortoiseFrames({ id }: { id: string }) {
+  const lens = (mirror: boolean) => (
+    <g transform={mirror ? "translate(200 0) scale(-1 1)" : undefined}>
+      <path d={`${TORT_OUTER} ${TORT_INNER}`} fill={`url(#${id})`} fillRule="evenodd" />
+      <path d={TORT_INNER} fill="#ffffff" fillOpacity={0.14} />
+      <path d={TORT_OUTER} fill="none" stroke={INK} strokeWidth={1} strokeLinejoin="round" />
+      <path d={TORT_INNER} fill="none" stroke={INK} strokeWidth={0.7} strokeOpacity={0.7} />
+      <path d="M88.5 52 L91.5 47.5" stroke="#ffffff" strokeOpacity={0.55} strokeWidth={0.9} strokeLinecap="round" />
+    </g>
+  );
+  return (
+    <>
+      <defs>
+        <pattern id={id} patternUnits="userSpaceOnUse" width="7" height="6">
+          <rect width="7" height="6" fill="#bdb79c" />
+          <ellipse cx="1.5" cy="1.5" rx="1.6" ry="1.1" fill="#4e3b2c" />
+          <ellipse cx="5" cy="4" rx="1.4" ry="1" fill="#4e3b2c" />
+          <ellipse cx="4.6" cy="1.2" rx="1.1" ry=".8" fill="#86ab9c" />
+          <ellipse cx="1.6" cy="4.6" rx="1.2" ry=".8" fill="#86ab9c" />
+          <ellipse cx="6.4" cy="2.6" rx=".7" ry=".6" fill="#7a5a40" />
+        </pattern>
+      </defs>
+      {lens(false)}
+      {lens(true)}
+      <path d="M99.4 47.4 Q100 45.8 100.6 47.4" fill="none" stroke={`url(#${id})`} strokeWidth={2} />
+      <path d="M99.2 46.4 Q100 45 100.8 46.4" fill="none" stroke={INK} strokeWidth={0.7} />
+    </>
+  );
+}
+
+// The frames are always tortoiseshell, whatever colour the item is tagged.
+const TORTOISE_GLASSES: Shape = { parts: [], details: ({ id }) => <TortoiseFrames id={`${id}-tort`} /> };
+
 const shirtDetails = (placketEnd: number, buttons: number[], folds: string, elbows: string) => (
   <>
     {line(`M100 100 V${placketEnd}`, 1.3, 0.5)}
@@ -388,6 +528,9 @@ const shapes: Record<ModelStyle, Record<GarmentKind, Shape>> = {
     bag: BAG,
     tophandle: TOP_HANDLE,
     sunglasses: SUNGLASSES,
+    dbblazer: DB_BLAZER,
+    suitpants: SUIT_PANTS,
+    glasses: TORTOISE_GLASSES,
   },
   masculine: {
     shell: { parts: [MASC_TORSO] },
@@ -492,6 +635,10 @@ const shapes: Record<ModelStyle, Record<GarmentKind, Shape>> = {
     bag: { ...BAG, shift: [-3.5, -3] },
     tophandle: { ...TOP_HANDLE, shift: [3.5, -3] },
     sunglasses: SUNGLASSES,
+    // v6 pieces were drawn on the feminine body: widen the blazer to his shoulders
+    dbblazer: { ...DB_BLAZER, scaleX: 1.1 },
+    suitpants: SUIT_PANTS,
+    glasses: TORTOISE_GLASSES,
   },
 };
 
@@ -517,10 +664,13 @@ const layerOf: Record<GarmentKind, Layer> = {
   bag: "purse",
   tophandle: "inHand",
   sunglasses: "glasses",
+  dbblazer: "outerwear",
+  suitpants: "bottom",
+  glasses: "glasses",
 };
 
 // Bottoms whose hem reaches the floor: pumps peek out as pointed toes.
-const LONG_HEMS: GarmentKind[] = ["wideleg"];
+const LONG_HEMS: GarmentKind[] = ["wideleg", "suitpants"];
 
 // ---------------------------------------------------------------------------------------------
 // Patterns: lines clipped inside the garment (plaid from model_styles.html)
@@ -597,6 +747,9 @@ function Garment({ worn }: { worn: Worn | null }) {
   return (
     <g transform={transformOf(worn.shape)}>
       <PieceView piece={worn.shape} ctx={worn.ctx} pattern={worn.pattern} clipId={worn.clipId} />
+      {worn.shape.over && (
+        <PieceView piece={worn.shape.over} ctx={worn.ctx} pattern={worn.pattern} clipId={`${worn.clipId}-over`} />
+      )}
     </g>
   );
 }
@@ -637,14 +790,14 @@ function Head({ style, skin }: { style: ModelStyle; skin: string }) {
   );
 }
 
-function Face({ style }: { style: ModelStyle }) {
+function Face({ style, brow }: { style: ModelStyle; brow: string }) {
   const fem = style === "feminine";
   const browWidth = fem ? 1.8 : 2.6;
   const lashWidth = fem ? 1.8 : 1.1;
   return (
     <>
-      <path d="M88 42.5 Q93 40 97.5 42" stroke={BROW} strokeWidth={browWidth} fill="none" strokeLinecap="round" />
-      <path d="M102.5 42 Q107 40 112 42.5" stroke={BROW} strokeWidth={browWidth} fill="none" strokeLinecap="round" />
+      <path d="M88 42.5 Q93 40 97.5 42" stroke={brow} strokeWidth={browWidth} fill="none" strokeLinecap="round" />
+      <path d="M102.5 42 Q107 40 112 42.5" stroke={brow} strokeWidth={browWidth} fill="none" strokeLinecap="round" />
       {[93, 107].map((cx) => (
         <g key={cx}>
           <path
@@ -693,14 +846,27 @@ function Face({ style }: { style: ModelStyle }) {
   );
 }
 
-type HairColor = { hair: string; strand: string };
-
-function HairBack({ style, color }: { style: ModelStyle; color: HairColor }) {
-  if (style !== "feminine") return null;
-  return <path d={FEM_HAIR_BACK} fill={color.hair} {...stroke} />;
+// Brown's balayage: root colour to 34%, ends colour from 78%, y 18 → 108 in model space.
+function Balayage({ id, color }: { id: string; color: HairSpec }) {
+  return (
+    <defs>
+      <linearGradient id={id} gradientUnits="userSpaceOnUse" x1="0" y1={BALAYAGE.y1} x2="0" y2={BALAYAGE.y2}>
+        <stop offset="0" stopColor={color.hair} />
+        <stop offset={BALAYAGE.rootUntil} stopColor={color.hair} />
+        <stop offset={BALAYAGE.endsFrom} stopColor={color.ends} />
+        <stop offset="1" stopColor={color.ends} />
+      </linearGradient>
+    </defs>
+  );
 }
 
-function HairFront({ style, color }: { style: ModelStyle; color: HairColor }) {
+// `fill` is the balayage gradient's url for Brown, otherwise the plain root colour.
+function HairBack({ style, fill }: { style: ModelStyle; fill: string }) {
+  if (style !== "feminine") return null;
+  return <path d={FEM_HAIR_BACK} fill={fill} {...stroke} />;
+}
+
+function HairFront({ style, color, fill }: { style: ModelStyle; color: HairSpec; fill: string }) {
   if (style === "masculine") {
     return (
       <>
@@ -719,25 +885,28 @@ function HairFront({ style, color }: { style: ModelStyle; color: HairColor }) {
       </>
     );
   }
+  // Front sections, strand lines (highlight colour; the two short ones in the ends colour),
+  // cheekbone swoops, then the side part.
   return (
     <>
-      <path d={FEM_HAIR_CAP} fill={color.hair} {...stroke} />
       {FEM_HAIR_FRONT.map((d) => (
-        <path key={d} d={d} fill={color.hair} {...stroke} />
+        <path key={d} d={d} fill={fill} {...stroke} />
       ))}
-      <path d={FEM_HAIR_PART} stroke={color.strand} strokeWidth={1.3} strokeLinecap="round" />
-      <path d={FEM_HAIR_SWEEPS} stroke={color.strand} strokeWidth={1.3} fill="none" strokeLinecap="round" />
-      {FEM_HAIR_STRANDS.map((d) => (
+      {FEM_HAIR_STRANDS.map(({ d, tone, opacity }) => (
         <path
           key={d}
           d={d}
-          stroke={color.strand}
-          strokeWidth={1.2}
+          stroke={tone === "ends" ? (color.ends ?? color.hair) : color.strand}
+          strokeWidth={1.15}
           fill="none"
           strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeOpacity={opacity}
         />
       ))}
+      {FEM_HAIR_SWOOPS.map((d) => (
+        <path key={d} d={d} stroke={INK} strokeWidth={1} fill="none" strokeOpacity={0.4} />
+      ))}
+      <path d={FEM_HAIR_PART} stroke={color.strand} strokeWidth={1.2} fill="none" />
     </>
   );
 }
@@ -759,14 +928,19 @@ const baseShapes: Record<ModelStyle, { top: Shape; bottom: Shape }> = {
 interface Props {
   style: ModelStyle;
   skinTone: SkinTone;
+  /** Defaults to Brown, the only colour with balayage ends. */
+  hairColor?: HairColor;
   outfit: ModelOutfit;
   className?: string;
 }
 
-export default function Model({ style, skinTone, outfit, className }: Props) {
+export default function Model({ style, skinTone, hairColor = DEFAULT_HAIR, outfit, className }: Props) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const b = body[style];
-  const hair = HAIR_COLORS[skinTone] ?? HAIR_COLORS["#c98e6b"];
+  const hair = hairSpec(hairColor);
+  // The gradient id is per Model instance, so several models on one page don't share one.
+  const balayageId = `model-${uid}-balayage`;
+  const hairFill = style === "feminine" && hair.ends ? `url(#${balayageId})` : hair.hair;
 
   // Draw by garment kind, not by slot, so e.g. a bag or sunglasses in "Accessory" lands right.
   const byLayer: Partial<Record<Layer, ClothingItem>> = {};
@@ -782,11 +956,13 @@ export default function Model({ style, skinTone, outfit, className }: Props) {
     if (!item) return null;
     const fill = garmentColors[item.color] ?? "#ffffff";
     const shape = item.kind === "pumps" && longHem ? POINTED_PUMPS : shapes[style][item.kind];
-    return { shape, ctx: { fill, accent: accentOf(fill), skin: skinTone }, pattern: item.pattern, clipId: `model-${uid}-${layer}` };
+    const clipId = `model-${uid}-${layer}`;
+    const ctx = { fill, accent: accentOf(fill), ...shadesOf(fill), skin: skinTone, id: clipId };
+    return { shape, ctx, pattern: item.pattern, clipId };
   };
   const base = (which: "top" | "bottom"): Worn => ({
     shape: baseShapes[style][which],
-    ctx: { fill: BASE, accent: BASE, skin: skinTone },
+    ctx: { fill: BASE, accent: BASE, dark: BASE, light: BASE, skin: skinTone, id: `model-${uid}-base-${which}` },
     pattern: "solid",
     clipId: `model-${uid}-base-${which}`,
   });
@@ -808,7 +984,8 @@ export default function Model({ style, skinTone, outfit, className }: Props) {
     <svg viewBox="0 0 200 330" role="img" aria-label={label} className={className ?? "block h-full w-full"}>
       <ellipse cx="100" cy="316" rx="50" ry="7" fill={INK} fillOpacity={0.12} />
 
-      <HairBack style={style} color={hair} />
+      {style === "feminine" && hair.ends && <Balayage id={balayageId} color={hair} />}
+      <HairBack style={style} fill={hairFill} />
 
       {/* legs and arms, which show under short hems and sleeveless tops */}
       {[...b.legs, ...b.arms].map((d) => (
@@ -840,9 +1017,9 @@ export default function Model({ style, skinTone, outfit, className }: Props) {
       <Head style={style} skin={skinTone} />
       <Collar worn={top} />
       <Collar worn={outerwear} />
-      <Face style={style} />
+      <Face style={style} brow={hair.hair} />
       <Garment worn={wear("glasses")} />
-      <HairFront style={style} color={hair} />
+      <HairFront style={style} color={hair} fill={hairFill} />
     </svg>
   );
 }
