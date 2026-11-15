@@ -68,7 +68,7 @@ export default function SignInPage() {
                 className="w-full rounded-xl border-2 border-ink bg-white px-3 py-2.5 text-[15px] text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-raspberry"
               />
             </label>
-            {error && <Note>{error}</Note>}
+            {(error ?? account.linkError) && <Note>{error ?? account.linkError}</Note>}
             <Button type="submit" loading={sending} className="self-start">
               Email me a sign-in link
             </Button>
