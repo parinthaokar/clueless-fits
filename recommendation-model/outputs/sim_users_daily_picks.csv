@@ -1,0 +1,5 @@
+recommender,Recall@10 (held-out likes),HitRate@10
+Random,0.0023,0.0225
+Baseline: favourite-categories,0.0055,0.0525
+A: fashionclip zero-shot taste vector,0.01,0.0925
+Selected (fashionclip adapted) taste vector,0.0125,0.125

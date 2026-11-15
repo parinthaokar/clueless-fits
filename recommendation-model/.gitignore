@@ -1,0 +1,5 @@
+.venv/
+data/
+outputs/*.npy
+outputs/*.log
+.DS_Store

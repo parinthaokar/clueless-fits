@@ -1,0 +1,8 @@
+,Recall@1,Recall@5,Recall@10,MRR,CatMatch@10
+Baseline: TF-IDF category guess,0.0003,0.0063,0.0107,0.0084,0.8368
+A: CLIP ViT-B/32 (zero-shot),0.1152,0.2626,0.3432,0.191,0.7155
+A: FashionCLIP (zero-shot),0.3635,0.5942,0.6856,0.4717,0.7778
+B: CLIP ViT-B/32 + trained adapter,0.1422,0.309,0.4054,0.2278,0.7331
+B: FashionCLIP + trained adapter,0.4013,0.6417,0.7314,0.513,0.77
+C: CLIP ViT-B/32 adapter + category prior,0.1492,0.3205,0.4174,0.2372,0.8374
+C: FashionCLIP adapter + category prior,0.4046,0.6462,0.7371,0.5165,0.8289
