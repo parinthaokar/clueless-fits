@@ -14,3 +14,7 @@ export const supabase =
     : null;
 
 export const PHOTO_BUCKET = "wardrobe-photos";
+
+/** This page load is the return from a sign-in link: ?code=… on success, error=… when it failed. */
+export const fromSignInLink =
+  supabase !== null && /[?&#](code|error|error_description)=/.test(window.location.search + window.location.hash);
