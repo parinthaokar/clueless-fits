@@ -33,8 +33,13 @@ Each of A, B, C was run on two backbones (generic CLIP, fashion-specific Fashion
 
 ![Test metrics (left) and CatMatch@10 by category, baseline vs. selected model (right).](../outputs/fig_comparison.png){width=95%}
 
-**Selected model: C with FashionCLIP** (best val MRR 0.5165 vs. 0.5130 for B and 0.4717 for zero-shot). The justification has three parts. (1) *Backbone matters most*: FashionCLIP roughly doubles generic CLIP's MRR (0.47 vs. 0.19 zero-shot), so domain pretraining is the biggest lever. (2) *The adapter adds a real but moderate gain* (+0.04 MRR on FashionCLIP, +0.04 on CLIP), and its training curve peaks around epoch 5-6 then overfits, so early stopping is needed. (3) *The category prior is small for exact retrieval but fixes the type-level errors*: on FashionCLIP it adds only +0.0032 test MRR (paired bootstrap 95% CI [+0.0011, +0.0052]: significant but tiny) yet lifts CatMatch@10 from 0.777 to 0.832, matching the text-only baseline's 0.837. For a chatbot, returning the wrong *kind* of item is the most visible failure, so we prefer C. Over the baseline the MRR gain is +0.50 (CI [+0.49, +0.51]). The baseline is a useful reference rather than a strawman: it is the best at CatMatch among non-hybrid models but cannot pick an individual item.
+**Selected Model: C with FashionCLIP** (best validation MRR of **0.5165**, beating Model B at 0.5130 and zero-shot at 0.4717). We chose this setup for three main reasons:
 
+1. **Domain pretraining makes the biggest difference:** FashionCLIP more than doubles generic CLIP's zero-shot MRR (**0.47 vs. 0.19**), proving that a fashion-tuned backbone is our strongest lever.
+2. **The adapter provides a solid boost (with early stopping):** Adding the trained adapter improves MRR by **+0.04** across both backbones. Because performance peaks around epochs 5–6 before overfitting, early stopping is essential.
+3. **The category prior prevents obvious type mistakes:** While the category prior only adds a tiny **+0.0032** to test MRR (95% CI `[+0.0011, +0.0052]`), it boosts **CatMatch@10 from 77.7% to 83.2%**—matching the text-only baseline (83.7%). For a shopping chatbot, showing the wrong *type* of clothing is the most jarring mistake, making Model C the clear winner.
+
+Overall, Model C beats the text-only baseline by **+0.50 MRR** (95% CI `[+0.49, +0.51]`). While the baseline is great at guessing the broad clothing category, it has no way to pick out a specific item—making it a useful benchmark rather than a real alternative.
 ## 4. Error Analysis & Personalization Check
 
 ### Performance by Category
