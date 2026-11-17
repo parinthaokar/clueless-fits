@@ -37,9 +37,9 @@ Each of A, B, C was run on two backbones (generic CLIP, fashion-specific Fashion
 
 **Selected Model: C with FashionCLIP** (best validation MRR of **0.5165**, beating Model B at 0.5130 and zero-shot at 0.4717). We chose this setup for three main reasons:
 
-1. **Domain pretraining makes the biggest difference:** FashionCLIP more than doubles generic CLIP's zero-shot MRR (**0.47 vs. 0.19**), proving that a fashion-tuned backbone is our strongest lever.
-2. **The adapter provides a solid boost (with early stopping):** Adding the trained adapter improves MRR by **+0.04** across both backbones. Because performance peaks around epochs 5–6 before overfitting, early stopping is essential.
-3. **The category prior prevents obvious type mistakes:** While the category prior only adds a tiny **+0.0032** to test MRR (95% CI `[+0.0011, +0.0052]`), it boosts **CatMatch@10 from 77.7% to 83.2%**—matching the text-only baseline (83.7%). For a shopping chatbot, showing the wrong *type* of clothing is the most jarring mistake, making Model C the clear winner.
+1. **Domain pretraining makes the biggest difference:** FashionCLIP more than doubles generic CLIP's zero-shot MRR (**0.47 vs. 0.19**), proving that a fashion-tuned backbone is a strong advantage.
+2. **The adapter provides a solid boost (with early stopping):** Adding the trained adapter improves MRR by **+0.04** across both backbones. Because performance peaks around epochs 5–6 before diminishing returns, early stopping is essential for performance.
+3. **The category prior prevents obvious type mistakes:** While the category prior only adds a tiny **+0.0032** to test MRR (95% CI `[+0.0011, +0.0052]`), it boosts **CatMatch@10 from 77.7% to 83.2%** meaning that even if the model is wrong it is unlikely to suggest the wrong type of clothing altogether e.g.(shoes instead of a shirt), making Model C the clear winner.
 
 Overall, Model C beats the text-only baseline by **+0.50 MRR** (95% CI `[+0.49, +0.51]`). While the baseline is great at guessing the broad clothing category, it has no way to pick out a specific item—making it a useful benchmark rather than a real alternative.
 ## 4. Error Analysis & Personalization Check
