@@ -17,6 +17,8 @@ scikit-learn Pipeline without any change to the endpoints.
 | `categories.py` | Maps the 11 model labels to the frontend's categories and slots |
 | `modal_app.py` | Modal deployment |
 | `tests/test_api.py` | pytest: valid requests, 422 cases, and the 503 case |
+| `tests/test_pipeline_mode.py` | pytest: loading and serving a saved Pipeline, using a small practice model |
+| `verify_outputs.py` | D4 check that the local and deployed APIs give the same outputs |
 | `postman/` | Postman collection with assertions for the deployed URL |
 
 ## Run locally (from inside `api/`)
@@ -49,10 +51,31 @@ Then:
 4. Export the collection again after any edits and commit it.
 
 ## Switching to the real model (D4)
-1. Save the fitted Pipeline (with the custom transformer) to `artifacts/model.joblib`,
-   following the HW4 bundle format. `predictor.py` accepts a bare Pipeline or
-   `{"pipeline": ..., "metadata": {...}}`. Adjust it to match HW4 exactly.
+What the model file needs (`tests/test_pipeline_mode.py` checks all of this with a small
+practice model, so the switch is tested before the real model exists):
+- A scikit-learn `Pipeline` with `predict_proba`, taking a DataFrame with columns
+  `url_name`, `title`, `description` (empty strings when missing).
+- `classes_` exactly the 11 labels in `categories.py`. Any other label set is refused at
+  startup (503) instead of failing on the first request.
+- The custom transformer defined in its own module inside `api/` (not in a notebook or
+  `__main__`), so joblib can import it on Modal.
+- Saved with joblib to `artifacts/model.joblib` as
+  `{"pipeline": pipe, "metadata": {"model_name", "model_version", "sklearn_version", "metrics"}}`
+  (a bare Pipeline also works). A `sklearn_version` that differs from the server's is refused (503).
+
+Steps:
+1. Save the fitted Pipeline to `artifacts/model.joblib`.
 2. Pin `scikit-learn` in `pyproject.toml` and `modal_app.py` to the exact training version.
 3. Set `MODEL_MODE = "pipeline"` in `modal_app.py`.
-4. Check that local and deployed `/predict` give the same output for the same inputs.
-5. `modal deploy modal_app.py`, then rerun Postman.
+4. `uv run pytest`, then `modal deploy modal_app.py`.
+5. Check local and deployed outputs match (below), then rerun Postman.
+
+## Checking local and deployed outputs match (D4)
+`verify_outputs.py` sends the same 15 inputs to the local API and the deployed one and
+compares the full responses, plus `/pipeline-info`. It exits with an error if anything differs.
+```bash
+MODEL_MODE=pipeline uv run uvicorn main:app             # terminal 1 (MODEL_MODE=stub before D4)
+uv run python verify_outputs.py                         # terminal 2
+uv run python verify_outputs.py --report verify_report.json   # also save every response
+```
+PowerShell for terminal 1: `$env:MODEL_MODE="pipeline"; uv run uvicorn main:app`.
