@@ -30,7 +30,7 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
   return (
     <div className="fixed inset-0 z-40">
       {/* Dimmed backdrop */}
-      <div onClick={onClose} className="absolute inset-0 bg-ink/30" />
+      <div onClick={onClose} className="absolute inset-0 bg-black/60" />
 
       <aside className="slide-in absolute right-0 top-0 flex h-full w-full max-w-md flex-col overflow-y-auto bg-paper p-6 sm:p-8">
         <div className="flex items-center justify-between">
@@ -95,14 +95,14 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
             Cancel
           </button>
           {identified ? (
-            <button onClick={handleAdd} className="label bg-accent px-6 py-3 text-paper hover:opacity-90">
+            <button onClick={handleAdd} className="label rounded-full bg-accent px-6 py-3 text-paper hover:opacity-90">
               Add to wardrobe
             </button>
           ) : (
             <button
               disabled={!preview}
               onClick={() => setIdentified(true)}
-              className="label bg-accent px-6 py-3 text-paper hover:opacity-90 disabled:opacity-30"
+              className="label rounded-full bg-accent px-6 py-3 text-paper hover:opacity-90 disabled:opacity-30"
             >
               Upload
             </button>

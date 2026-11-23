@@ -1,0 +1,9 @@
+{
+  "occasion": "Class",
+  "items": [
+    { "category": "tops",       "name": "Taupe Knit Sweater",        "color": "#a89684" },
+    { "category": "bottoms",    "name": "Slate Straight Jeans",      "color": "#4a5568" },
+    { "category": "shoes",      "name": "White Leather Sneakers",    "color": "#f2f2f2" },
+    { "category": "sunglasses", "name": "Black Acetate Sunglasses",  "color": "#111111" }
+  ]
+}

@@ -10,8 +10,9 @@ npm run dev   # http://localhost:3000
 
 | Route | File | Components |
 |---|---|---|
+| `/` | `app/page.tsx` | `FeatureCard`, `GarmentImage` |
 | `/wardrobe` | `app/wardrobe/page.tsx` | `TextFilters`, `GarmentCard`, `AddPieceDrawer`, `EmptyState` |
-| `/stylist` | `app/stylist/page.tsx` | `MessageBlock`, `OccasionPills`, `LookPanel` |
+| `/stylist` | `app/stylist/page.tsx` | `MessageBlock`, `OccasionPills`, `LookPanel`, `TypingIndicator` |
 | `/fitting-room` | `app/fitting-room/page.tsx` | `FittingRoomView`, `RatingDots` |
 | `/saved` | `app/saved/page.tsx` | `LookCard`, `RatingDots` |
 

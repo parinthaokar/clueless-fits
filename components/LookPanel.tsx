@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import type { OutfitSuggestion } from "@/lib/types";
 import GarmentImage from "./GarmentImage";
 
@@ -12,8 +13,13 @@ interface Props {
 export default function LookPanel({ outfit, saved, onSave, onAnother }: Props) {
   return (
     <div key={outfit.id} className="fade-in">
-      <p className="label">The Look</p>
-      <h2 className="mt-2 font-serif text-4xl sm:text-5xl">{outfit.occasion}</h2>
+      <div className="flex items-center justify-between">
+        <p className="label flex items-center gap-2 text-accent">
+          <Sparkles size={14} strokeWidth={1.5} /> AI Styled
+        </p>
+        <p className="label">{outfit.match}% style match</p>
+      </div>
+      <h2 className="mt-4 font-serif text-4xl sm:text-5xl">{outfit.occasion}</h2>
 
       {/* Flat-lay grid: one tile per slot */}
       <div className="mt-8 grid grid-cols-2 gap-4">
@@ -35,7 +41,7 @@ export default function LookPanel({ outfit, saved, onSave, onAnother }: Props) {
       <div className="mt-8 flex flex-wrap items-center gap-6">
         <Link
           href={`/fitting-room?outfit=${outfit.id}`}
-          className="label bg-accent px-6 py-3 text-paper hover:opacity-90"
+          className="label rounded-full bg-accent px-6 py-3 text-paper hover:opacity-90"
         >
           Try On
         </Link>

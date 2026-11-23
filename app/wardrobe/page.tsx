@@ -19,7 +19,7 @@ export default function WardrobePage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-5xl sm:text-6xl">Your Wardrobe</h1>
-          <p className="label mt-3">{items.length} pieces</p>
+          <p className="label mt-3">{items.length} pieces · auto-sorted by AI</p>
         </div>
         <button
           onClick={() => setDrawerOpen(true)}

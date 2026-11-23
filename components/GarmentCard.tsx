@@ -9,7 +9,7 @@ interface Props {
 export default function GarmentCard({ item, onRemove }: Props) {
   return (
     <div className="group">
-      <div className="relative aspect-[3/4]">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-xl border border-transparent transition-colors group-hover:border-accent/50">
         <GarmentImage src={item.imageUrl} alt={item.name} />
         {/* Quiet actions: visible on hover, keyboard focus, or tap */}
         <div className="absolute inset-x-0 bottom-0 flex justify-between bg-paper/90 px-3 py-2 opacity-0 transition-opacity duration-300 group-focus-within:opacity-100 group-hover:opacity-100">

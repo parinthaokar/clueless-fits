@@ -21,12 +21,12 @@ export default function FittingRoomView({ outfit }: { outfit: OutfitSuggestion }
 
   return (
     <div>
-      <p className="label">Fitting Room</p>
+      <p className="label text-accent">Fitting Room · AI render</p>
       <h1 className="mt-2 font-serif text-5xl sm:text-6xl">{outfit.occasion}</h1>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_220px]">
         {/* Studio viewer */}
-        <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden bg-stone sm:aspect-[4/3] lg:aspect-[4/4.4]">
+        <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-3xl border border-line bg-stone sm:aspect-[4/3] lg:aspect-[4/4.4]">
           {loading ? (
             <div className="w-48 text-center">
               <div className="h-px w-full overflow-hidden bg-line">
@@ -85,7 +85,7 @@ export default function FittingRoomView({ outfit }: { outfit: OutfitSuggestion }
           <button
             onClick={() => setSubmitted(true)}
             disabled={!rating || !wear}
-            className="label bg-accent px-6 py-3 text-paper hover:opacity-90 disabled:opacity-30"
+            className="label rounded-full bg-accent px-6 py-3 text-paper hover:opacity-90 disabled:opacity-30"
           >
             Submit
           </button>

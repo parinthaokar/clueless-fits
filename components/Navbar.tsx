@@ -16,7 +16,7 @@ export default function Navbar() {
   return (
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <Link href="/wardrobe" className="font-serif text-2xl tracking-[0.3em]">
+        <Link href="/" className="font-serif text-2xl tracking-[0.3em]">
           CLOSET
         </Link>
         <nav className="flex gap-6 sm:gap-8">

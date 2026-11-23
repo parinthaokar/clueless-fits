@@ -29,6 +29,7 @@ export interface OutfitSuggestion {
   occasion: string;
   items: OutfitItem[];
   why: string;
+  match: number; // AI style-match score, 0-100
 }
 
 export interface SavedOutfit extends OutfitSuggestion {

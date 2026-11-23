@@ -46,6 +46,7 @@ export const classLook: OutfitSuggestion = {
     { slot: "Accessory", item: byId("i10") },
   ],
   why: "Considered ease for a long day. The knit adds warmth, the denim keeps it relaxed, and clean white sneakers carry you across campus.",
+  match: 94,
 };
 
 export const alternateLook: OutfitSuggestion = {
@@ -58,6 +59,7 @@ export const alternateLook: OutfitSuggestion = {
     { slot: "Accessory", item: byId("i9") },
   ],
   why: "A softer, more tailored option. Oat and sand stay quiet together; the loafers and tote add structure.",
+  match: 89,
 };
 
 export const savedOutfits: SavedOutfit[] = [
@@ -72,6 +74,7 @@ export const savedOutfits: SavedOutfit[] = [
       { slot: "Accessory", item: byId("i9") },
     ],
     why: "A black slip dress under a camel coat. Simple, and nothing more is needed.",
+    match: 94,
     savedAt: "2026-10-14",
     rating: 4,
   },
@@ -85,6 +88,7 @@ export const savedOutfits: SavedOutfit[] = [
       { slot: "Accessory", item: byId("i9") },
     ],
     why: "Polished and measured, in a tonal palette that reads as confident.",
+    match: 94,
     savedAt: "2026-10-02",
     rating: 3,
   },
@@ -98,6 +102,7 @@ export const savedOutfits: SavedOutfit[] = [
       { slot: "Accessory", item: byId("i10") },
     ],
     why: "A white tee and denim, worn the way it should be.",
+    match: 94,
     savedAt: "2026-09-27",
     rating: 4,
   },
