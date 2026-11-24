@@ -14,6 +14,7 @@
 //
 // Built on useSyncExternalStore, so the server render and the first client render use the
 // mock data and React swaps in the stored data right after hydration (no mismatch).
+import { DEMO_PHOTOS } from "./demoPhotos";
 import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
 import { DEFAULT_HAIR, HAIR_COLORS, SKIN_TONES, type HairColor, type SkinTone } from "@/components/Model";
 import { savedOutfits, wardrobeItems } from "./mockData";
@@ -63,8 +64,11 @@ const isSkinTone = (v: unknown): v is SkinTone => SKIN_TONES.includes(v as SkinT
 const isHairColor = (v: unknown): v is HairColor => HAIR_COLORS.some((h) => h.id === v);
 
 // Blob URLs from an earlier visit point at nothing, so drop them (the drawing is used instead).
-const withLivePhoto = (item: ClothingItem): ClothingItem =>
-  item.photoUrl?.startsWith("blob:") ? { ...item, photoUrl: undefined } : item;
+// Demo pieces stored before they had catalog photos get theirs back here.
+const withLivePhoto = (item: ClothingItem): ClothingItem => {
+  const photoUrl = item.photoUrl?.startsWith("blob:") ? undefined : item.photoUrl;
+  return { ...item, photoUrl: photoUrl ?? DEMO_PHOTOS[item.id] };
+};
 
 /** Use what's stored field by field; anything missing or malformed falls back to the mock data. */
 function parse(raw: string | null): StoreState {

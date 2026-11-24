@@ -1,4 +1,5 @@
 // All mock data lives here. Swap these exports for real API calls later.
+import { DEMO_PHOTOS } from "./demoPhotos";
 import type {
   Category,
   ChatMessage,
@@ -38,7 +39,7 @@ const piece = (
   color: ClothingItem["color"],
   addedAt: string,
   pattern: ClothingItem["pattern"] = "solid",
-): ClothingItem => ({ id, name, category, kind, color, pattern, addedAt });
+): ClothingItem => ({ id, name, category, kind, color, pattern, addedAt, photoUrl: DEMO_PHOTOS[id] });
 
 export const wardrobeItems: ClothingItem[] = [
   piece("i1", "Yellow Plaid Blazer", "Outerwear", "blazer", "mustard", "2026-11-08", "plaid"),
