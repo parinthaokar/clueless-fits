@@ -1,7 +1,7 @@
 # Folders the website does not use. Keeps Vercel deployments small: recommendation-model/
 # holds ~160 MB of embeddings. The API deploys to Modal from api/, the EDA app from eda/.
-recommendation-model/
-eda/
-api/
-design/
-recommender/
+/recommendation-model/
+/eda/
+/api/
+/design/
+/recommender/
