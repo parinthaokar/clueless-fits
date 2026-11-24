@@ -26,7 +26,7 @@ Information about the loaded model. Returns **503** if no model is loaded.
 {
   "model_name": "stub-keyword-rules",
   "model_version": "0.1-stub",
-  "sklearn_version": "1.5.2",
+  "sklearn_version": "1.9.1",
   "classes": ["accessories", "all-body", "bags", "bottoms", "hats", "jewellery",
               "outerwear", "scarves", "shoes", "sunglasses", "tops"],
   "is_stub": true,

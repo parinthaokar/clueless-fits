@@ -72,6 +72,7 @@ class PipelinePredictor:
         trained = meta.get("sklearn_version")
         if trained and trained != sklearn.__version__:
             raise RuntimeError(f"Model saved with scikit-learn {trained}, server has {sklearn.__version__}")
+        self.predict_proba("warm up", None)  # load heavy encoders now, not on the first request
 
     def predict_proba(self, name: str, description: str | None) -> dict[str, float]:
         import pandas as pd

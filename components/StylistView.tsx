@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { RotateCw } from "lucide-react";
+import CatalogPicks from "@/components/CatalogPicks";
 import GarmentImage from "@/components/GarmentImage";
 import Model from "@/components/Model";
 import { Button, Card, Pill, RatingDots, Tag, Warn } from "@/components/ui";
@@ -309,6 +310,10 @@ export default function StylistView({ params }: { params: StylistParams }) {
           </div>
         </div>
       </Card>
+
+      <div className="lg:col-span-2">
+        <CatalogPicks occasion={look.occasion} />
+      </div>
     </div>
   );
 }
