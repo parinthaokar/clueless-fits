@@ -7,6 +7,7 @@ import Model from "@/components/Model";
 import { Button, Card, Pill, RatingDots, Tag, Warn } from "@/components/ui";
 import { looksByOccasion, mockConversation, occasions, wardrobeItems, weather } from "@/lib/mockData";
 import { appearanceFromQuery, lookFromQuery, lookToQuery, sortBySlot, toModelOutfit } from "@/lib/outfit";
+import { REC_PREFIX } from "@/lib/recommend";
 import { useAdoptAppearance, useStore } from "@/lib/store";
 import type { ChatMessage, OutfitSuggestion } from "@/lib/types";
 
@@ -48,6 +49,40 @@ export default function StylistView({ params }: { params: StylistParams }) {
   const [savedId, setSavedId] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
   const chatRef = useRef<HTMLDivElement>(null);
+  // Looks from the recommendation model (/api/outfit). null = show the sample looks instead.
+  const [live, setLive] = useState<OutfitSuggestion | null>(null);
+  const [liveQuery, setLiveQuery] = useState<string | null>(null);
+  const [variant, setVariant] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  async function loadLive(query: string, v: number, occ: string) {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/outfit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ query, variant: v }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setLive({ ...(await res.json()), occasion: occ });
+      setLiveQuery(query);
+      setVariant(v);
+      setSavedId(null);
+      setRating(0);
+    } catch {
+      setLive(null); // recommender unreachable: keep showing the sample looks
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // First visit: ask the model for a look for the default occasion.
+  useEffect(() => {
+    if (params.items) return;
+    const t = setTimeout(() => void loadLive(`${occasion} outfit`, 0, occasion), 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // The Fitting Room look is derived (not copied into state) so pieces from the stored closet
   // resolve once the store has loaded. Stylist suggestions use the demo closet, so check it too.
@@ -55,7 +90,9 @@ export default function StylistView({ params }: { params: StylistParams }) {
     showFittingRoomLook && params.items
       ? lookFromQuery(params.items, [...store.closet, ...wardrobeItems], params.occasion)
       : undefined;
-  const look = fittingRoomLook ? { ...fittingRoomLook, why: FROM_FITTING_ROOM } : lookFor(occasion, index);
+  const look = fittingRoomLook ? { ...fittingRoomLook, why: FROM_FITTING_ROOM } : (live ?? lookFor(occasion, index));
+  // Model picks are not in the closet, so the Fitting Room could not find them by id.
+  const canOpenInFittingRoom = !look.items.some((i) => i.item.id.startsWith(REC_PREFIX));
 
   // The body the user picked (URL from the Fitting Room, then the store) wins over the look's
   // own, so Shuffle and occasion changes never flip it.
@@ -70,6 +107,7 @@ export default function StylistView({ params }: { params: StylistParams }) {
     setOccasion(nextOccasion);
     setIndex(nextIndex);
     setShowFittingRoomLook(false);
+    setLive(null);
     setSavedId(null);
     setRating(0);
   }
@@ -103,13 +141,15 @@ export default function StylistView({ params }: { params: StylistParams }) {
       `What should I wear for ${o.toLowerCase()}?`,
       `It's ${weather.tempF}°F and ${weather.summary}. Here's a ${o.toLowerCase()} look →`,
     );
+    void loadLive(`${o} outfit`, 0, o);
   }
 
   function askForChange(e: React.FormEvent) {
     e.preventDefault();
     if (!text.trim()) return;
-    say(text.trim(), "Got it. Here's another option →");
+    say(text.trim(), "Got it. Here's what I found →");
     showLook(occasion, index + 1);
+    void loadLive(text.trim(), 0, occasion);
     setText("");
   }
 
@@ -181,14 +221,17 @@ export default function StylistView({ params }: { params: StylistParams }) {
       <Card as="section" aria-labelledby="look-title" className="p-5 sm:px-6 sm:py-[22px]">
         <div className="flex flex-wrap items-center gap-2">
           <h2 id="look-title" className="mr-1 text-[22px] font-black tracking-[-0.01em]">
-            Today&apos;s look
+            Today&apos;s look{loading && <span className="sr-only"> (loading)</span>}
           </h2>
           <Tag>{look.occasion}</Tag>
           <Tag>
             <span aria-hidden="true">{weather.icon} </span>
             {weather.tempF}°F
           </Tag>
-          <Pill size="sm" className="ml-auto" onClick={() => showLook(occasion, fittingRoomLook ? index : index + 1)}>
+          <Pill size="sm" className="ml-auto" onClick={() => {
+              if (liveQuery && !fittingRoomLook) void loadLive(liveQuery, variant + 1, occasion);
+              else showLook(occasion, fittingRoomLook ? index : index + 1);
+            }}>
             <RotateCw size={14} aria-hidden="true" /> Shuffle
           </Pill>
         </div>
@@ -227,9 +270,11 @@ export default function StylistView({ params }: { params: StylistParams }) {
           <Button onClick={toggleSave} aria-pressed={savedId !== null}>
             {savedId ? "Saved ✓" : "Save look"}
           </Button>
-          <Button variant="secondary" href={`/fitting-room?${lookToQuery(look, model, { skin, hair })}`}>
-            Open in Fitting Room
-          </Button>
+          {canOpenInFittingRoom && (
+            <Button variant="secondary" href={`/fitting-room?${lookToQuery(look, model, { skin, hair })}`}>
+              Open in Fitting Room
+            </Button>
+          )}
           <div className="flex items-center gap-2 sm:ml-auto">
             <span className="text-sm text-muted">Rate it:</span>
             <RatingDots value={rating} onChange={rate} label="Rate this look" />
