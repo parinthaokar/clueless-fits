@@ -37,15 +37,18 @@ const COLOR_WORDS: [string[], ColorName][] = [
   [["grey", "gray", "silver", "charcoal"], "grey"], [["stone", "taupe", "oatmeal"], "stone"],
 ];
 
-function colorFor(n: string): ColorName {
+// The colour named in a lowercase item name, or null if it names none.
+export function colorIn(n: string): ColorName | null {
   const words = n.split(/[^a-z-]+/);
   for (const [keys, color] of COLOR_WORDS) {
     if (keys.some((k) => (k.includes(" ") ? n.includes(k) : words.includes(k)))) return color;
   }
-  return "stone";
+  return null;
 }
 
-const patternFor = (n: string): Pattern => (has(n, ["plaid", "check", "tartan", "gingham"]) ? "plaid" : has(n, ["stripe", "striped"]) ? "stripe" : "solid");
+const colorFor = (n: string): ColorName => colorIn(n) ?? "stone";
+
+export const patternFor = (n: string): Pattern => (has(n, ["plaid", "check", "tartan", "gingham"]) ? "plaid" : has(n, ["stripe", "striped"]) ? "stripe" : "solid");
 
 const titleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 
