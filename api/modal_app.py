@@ -23,7 +23,7 @@ import modal
 
 API_DIR = Path(__file__).parent
 
-MODEL_MODE = "stub"  # "stub" now; "pipeline" once the D4 model is saved
+MODEL_MODE = "pipeline"  # fitted Pipeline in artifacts/model.joblib (rebuild: train_pipeline.py)
 FRONTEND_ORIGINS = "http://localhost:3000"  # add the Vercel URL here, comma-separated
 
 image = (

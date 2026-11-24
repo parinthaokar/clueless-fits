@@ -1,0 +1,814 @@
+{
+  "local": "http://127.0.0.1:8000",
+  "deployed": "https://parinthaokar--clueless-closet-api-fastapi-app.us-east.modal.run",
+  "pipeline_info": {
+    "local": {
+      "model_name": "cleaner-tfidf-logreg",
+      "model_version": "1.0",
+      "sklearn_version": "1.5.2",
+      "classes": [
+        "accessories",
+        "all-body",
+        "bags",
+        "bottoms",
+        "hats",
+        "jewellery",
+        "outerwear",
+        "scarves",
+        "shoes",
+        "sunglasses",
+        "tops"
+      ],
+      "is_stub": false,
+      "metrics": {
+        "val_accuracy": 0.8359226379201015,
+        "val_macro_f1": 0.808435676561129,
+        "test_accuracy": 0.8414167198468411,
+        "test_macro_f1": 0.8111933761208902
+      }
+    },
+    "deployed": {
+      "model_name": "cleaner-tfidf-logreg",
+      "model_version": "1.0",
+      "sklearn_version": "1.5.2",
+      "classes": [
+        "accessories",
+        "all-body",
+        "bags",
+        "bottoms",
+        "hats",
+        "jewellery",
+        "outerwear",
+        "scarves",
+        "shoes",
+        "sunglasses",
+        "tops"
+      ],
+      "is_stub": false,
+      "metrics": {
+        "val_accuracy": 0.8359226379201015,
+        "val_macro_f1": 0.808435676561129,
+        "test_accuracy": 0.8414167198468411,
+        "test_macro_f1": 0.8111933761208902
+      }
+    }
+  },
+  "predictions": [
+    {
+      "input": {
+        "name": "Black leather ankle boots"
+      },
+      "local": {
+        "category": "shoes",
+        "app_category": "Shoes",
+        "slots": [
+          "Shoes"
+        ],
+        "confidence": 0.9997,
+        "top_3": [
+          {
+            "category": "shoes",
+            "probability": 0.9997
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0001
+          },
+          {
+            "category": "accessories",
+            "probability": 0.0001
+          }
+        ]
+      },
+      "deployed": {
+        "category": "shoes",
+        "app_category": "Shoes",
+        "slots": [
+          "Shoes"
+        ],
+        "confidence": 0.9997,
+        "top_3": [
+          {
+            "category": "shoes",
+            "probability": 0.9997
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0001
+          },
+          {
+            "category": "accessories",
+            "probability": 0.0001
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "White canvas sneakers"
+      },
+      "local": {
+        "category": "shoes",
+        "app_category": "Shoes",
+        "slots": [
+          "Shoes"
+        ],
+        "confidence": 0.9821,
+        "top_3": [
+          {
+            "category": "shoes",
+            "probability": 0.9821
+          },
+          {
+            "category": "bags",
+            "probability": 0.0144
+          },
+          {
+            "category": "tops",
+            "probability": 0.0009
+          }
+        ]
+      },
+      "deployed": {
+        "category": "shoes",
+        "app_category": "Shoes",
+        "slots": [
+          "Shoes"
+        ],
+        "confidence": 0.9821,
+        "top_3": [
+          {
+            "category": "shoes",
+            "probability": 0.9821
+          },
+          {
+            "category": "bags",
+            "probability": 0.0144
+          },
+          {
+            "category": "tops",
+            "probability": 0.0009
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Red midi dress",
+        "description": "Silk, ankle length"
+      },
+      "local": {
+        "category": "all-body",
+        "app_category": "Dresses",
+        "slots": [
+          "Top",
+          "Bottom"
+        ],
+        "confidence": 0.9556,
+        "top_3": [
+          {
+            "category": "all-body",
+            "probability": 0.9556
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0308
+          },
+          {
+            "category": "shoes",
+            "probability": 0.0056
+          }
+        ]
+      },
+      "deployed": {
+        "category": "all-body",
+        "app_category": "Dresses",
+        "slots": [
+          "Top",
+          "Bottom"
+        ],
+        "confidence": 0.9556,
+        "top_3": [
+          {
+            "category": "all-body",
+            "probability": 0.9556
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0308
+          },
+          {
+            "category": "shoes",
+            "probability": 0.0056
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Light-wash straight leg jeans"
+      },
+      "local": {
+        "category": "bottoms",
+        "app_category": "Bottoms",
+        "slots": [
+          "Bottom"
+        ],
+        "confidence": 0.9992,
+        "top_3": [
+          {
+            "category": "bottoms",
+            "probability": 0.9992
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0003
+          },
+          {
+            "category": "accessories",
+            "probability": 0.0001
+          }
+        ]
+      },
+      "deployed": {
+        "category": "bottoms",
+        "app_category": "Bottoms",
+        "slots": [
+          "Bottom"
+        ],
+        "confidence": 0.9992,
+        "top_3": [
+          {
+            "category": "bottoms",
+            "probability": 0.9992
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0003
+          },
+          {
+            "category": "accessories",
+            "probability": 0.0001
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Pleated mini skirt"
+      },
+      "local": {
+        "category": "bottoms",
+        "app_category": "Bottoms",
+        "slots": [
+          "Bottom"
+        ],
+        "confidence": 0.9996,
+        "top_3": [
+          {
+            "category": "bottoms",
+            "probability": 0.9996
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0003
+          },
+          {
+            "category": "bags",
+            "probability": 0.0001
+          }
+        ]
+      },
+      "deployed": {
+        "category": "bottoms",
+        "app_category": "Bottoms",
+        "slots": [
+          "Bottom"
+        ],
+        "confidence": 0.9996,
+        "top_3": [
+          {
+            "category": "bottoms",
+            "probability": 0.9996
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0003
+          },
+          {
+            "category": "bags",
+            "probability": 0.0001
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Striped button-up shirt"
+      },
+      "local": {
+        "category": "tops",
+        "app_category": "Tops",
+        "slots": [
+          "Top"
+        ],
+        "confidence": 0.9852,
+        "top_3": [
+          {
+            "category": "tops",
+            "probability": 0.9852
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0056
+          },
+          {
+            "category": "outerwear",
+            "probability": 0.0051
+          }
+        ]
+      },
+      "deployed": {
+        "category": "tops",
+        "app_category": "Tops",
+        "slots": [
+          "Top"
+        ],
+        "confidence": 0.9852,
+        "top_3": [
+          {
+            "category": "tops",
+            "probability": 0.9852
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0056
+          },
+          {
+            "category": "outerwear",
+            "probability": 0.0051
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Camel wool trench coat"
+      },
+      "local": {
+        "category": "outerwear",
+        "app_category": "Outerwear",
+        "slots": [
+          "Top"
+        ],
+        "confidence": 0.9998,
+        "top_3": [
+          {
+            "category": "outerwear",
+            "probability": 0.9998
+          },
+          {
+            "category": "hats",
+            "probability": 0.0
+          },
+          {
+            "category": "tops",
+            "probability": 0.0
+          }
+        ]
+      },
+      "deployed": {
+        "category": "outerwear",
+        "app_category": "Outerwear",
+        "slots": [
+          "Top"
+        ],
+        "confidence": 0.9998,
+        "top_3": [
+          {
+            "category": "outerwear",
+            "probability": 0.9998
+          },
+          {
+            "category": "hats",
+            "probability": 0.0
+          },
+          {
+            "category": "tops",
+            "probability": 0.0
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Mini leather shoulder bag"
+      },
+      "local": {
+        "category": "bags",
+        "app_category": "Bags",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 1.0,
+        "top_3": [
+          {
+            "category": "bags",
+            "probability": 1.0
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0
+          }
+        ]
+      },
+      "deployed": {
+        "category": "bags",
+        "app_category": "Bags",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 1.0,
+        "top_3": [
+          {
+            "category": "bags",
+            "probability": 1.0
+          },
+          {
+            "category": "all-body",
+            "probability": 0.0
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Gold hoop earrings"
+      },
+      "local": {
+        "category": "jewellery",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.9997,
+        "top_3": [
+          {
+            "category": "jewellery",
+            "probability": 0.9997
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.0001
+          },
+          {
+            "category": "scarves",
+            "probability": 0.0
+          }
+        ]
+      },
+      "deployed": {
+        "category": "jewellery",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.9997,
+        "top_3": [
+          {
+            "category": "jewellery",
+            "probability": 0.9997
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.0001
+          },
+          {
+            "category": "scarves",
+            "probability": 0.0
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Cat-eye sunglasses"
+      },
+      "local": {
+        "category": "sunglasses",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 1.0,
+        "top_3": [
+          {
+            "category": "sunglasses",
+            "probability": 1.0
+          },
+          {
+            "category": "jewellery",
+            "probability": 0.0
+          },
+          {
+            "category": "scarves",
+            "probability": 0.0
+          }
+        ]
+      },
+      "deployed": {
+        "category": "sunglasses",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 1.0,
+        "top_3": [
+          {
+            "category": "sunglasses",
+            "probability": 1.0
+          },
+          {
+            "category": "jewellery",
+            "probability": 0.0
+          },
+          {
+            "category": "scarves",
+            "probability": 0.0
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Straw sun hat"
+      },
+      "local": {
+        "category": "hats",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.998,
+        "top_3": [
+          {
+            "category": "hats",
+            "probability": 0.998
+          },
+          {
+            "category": "bags",
+            "probability": 0.0009
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.0003
+          }
+        ]
+      },
+      "deployed": {
+        "category": "hats",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.998,
+        "top_3": [
+          {
+            "category": "hats",
+            "probability": 0.998
+          },
+          {
+            "category": "bags",
+            "probability": 0.0009
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.0003
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Plaid silk scarf"
+      },
+      "local": {
+        "category": "scarves",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.9961,
+        "top_3": [
+          {
+            "category": "scarves",
+            "probability": 0.9961
+          },
+          {
+            "category": "tops",
+            "probability": 0.0011
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0009
+          }
+        ]
+      },
+      "deployed": {
+        "category": "scarves",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.9961,
+        "top_3": [
+          {
+            "category": "scarves",
+            "probability": 0.9961
+          },
+          {
+            "category": "tops",
+            "probability": 0.0011
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0009
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "Brown leather belt"
+      },
+      "local": {
+        "category": "accessories",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.9893,
+        "top_3": [
+          {
+            "category": "accessories",
+            "probability": 0.9893
+          },
+          {
+            "category": "shoes",
+            "probability": 0.0045
+          },
+          {
+            "category": "outerwear",
+            "probability": 0.0023
+          }
+        ]
+      },
+      "deployed": {
+        "category": "accessories",
+        "app_category": "Accessories",
+        "slots": [
+          "Accessory"
+        ],
+        "confidence": 0.9893,
+        "top_3": [
+          {
+            "category": "accessories",
+            "probability": 0.9893
+          },
+          {
+            "category": "shoes",
+            "probability": 0.0045
+          },
+          {
+            "category": "outerwear",
+            "probability": 0.0023
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "MARC JACOBS fold down army"
+      },
+      "local": {
+        "category": "shoes",
+        "app_category": "Shoes",
+        "slots": [
+          "Shoes"
+        ],
+        "confidence": 0.3206,
+        "top_3": [
+          {
+            "category": "shoes",
+            "probability": 0.3206
+          },
+          {
+            "category": "tops",
+            "probability": 0.1668
+          },
+          {
+            "category": "bags",
+            "probability": 0.1667
+          }
+        ]
+      },
+      "deployed": {
+        "category": "shoes",
+        "app_category": "Shoes",
+        "slots": [
+          "Shoes"
+        ],
+        "confidence": 0.3206,
+        "top_3": [
+          {
+            "category": "shoes",
+            "probability": 0.3206
+          },
+          {
+            "category": "tops",
+            "probability": 0.1668
+          },
+          {
+            "category": "bags",
+            "probability": 0.1667
+          }
+        ]
+      },
+      "match": true
+    },
+    {
+      "input": {
+        "name": "something cute for a party"
+      },
+      "local": {
+        "category": "all-body",
+        "app_category": "Dresses",
+        "slots": [
+          "Top",
+          "Bottom"
+        ],
+        "confidence": 0.2184,
+        "top_3": [
+          {
+            "category": "all-body",
+            "probability": 0.2184
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.1825
+          },
+          {
+            "category": "accessories",
+            "probability": 0.1273
+          }
+        ]
+      },
+      "deployed": {
+        "category": "all-body",
+        "app_category": "Dresses",
+        "slots": [
+          "Top",
+          "Bottom"
+        ],
+        "confidence": 0.2184,
+        "top_3": [
+          {
+            "category": "all-body",
+            "probability": 0.2184
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.1825
+          },
+          {
+            "category": "accessories",
+            "probability": 0.1273
+          }
+        ]
+      },
+      "match": true
+    }
+  ],
+  "match": true
+}
