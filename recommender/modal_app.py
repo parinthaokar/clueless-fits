@@ -33,7 +33,7 @@ app = modal.App("clueless-closet", image=image)
 
 
 @app.cls(volumes={"/art": vol}, secrets=[modal.Secret.from_name("clueless-api")],
-         min_containers=0, scaledown_window=300, cpu=2, memory=4096)
+         min_containers=1, scaledown_window=600, cpu=2, memory=4096)
 class Recommender:
     @modal.enter()
     def load(self):

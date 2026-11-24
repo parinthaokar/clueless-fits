@@ -52,7 +52,7 @@ image = (
 app = modal.App(name="clueless-closet-api", image=image)
 
 
-@app.function(scaledown_window=300, cpu=2, memory=4096)
+@app.function(min_containers=1, scaledown_window=600, cpu=2, memory=4096)
 @modal.concurrent(max_inputs=50)
 @modal.asgi_app()
 def fastapi_app():
