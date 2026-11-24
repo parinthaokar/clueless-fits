@@ -7,6 +7,7 @@ import { Button, Card, ConfidenceBar, Note, Pill, Swatch, Tag, Warn } from "@/co
 import { API_ERRORS, ApiError, LOW_CONFIDENCE, predictCategory, topCategories } from "@/lib/api";
 import { colorNames, defaultKind, type ColorName } from "@/lib/colors";
 import { categories, MOCK_TODAY } from "@/lib/mockData";
+import { colorIn, patternFor } from "@/lib/recommend";
 import type { Category, ClothingItem, Pattern, PredictResponse } from "@/lib/types";
 
 interface Props {
@@ -28,6 +29,9 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
   const [category, setCategory] = useState<Category | "">("");
   const [color, setColor] = useState<ColorName>("white");
   const [pattern, setPattern] = useState<Pattern>("solid");
+  // Once the user picks a colour or pattern, tagging stops filling it from the name.
+  const [colorPicked, setColorPicked] = useState(false);
+  const [patternPicked, setPatternPicked] = useState(false);
 
   const [prediction, setPrediction] = useState<PredictResponse | null>(null);
   const [tagging, setTagging] = useState(false);
@@ -76,6 +80,12 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
     requestRef.current?.abort();
     const controller = new AbortController();
     requestRef.current = controller;
+
+    // The model only tags the category; colour and pattern come from words in the name.
+    const text = trimmed.toLowerCase();
+    const named = colorIn(text);
+    if (!colorPicked && named) setColor(named);
+    if (!patternPicked) setPattern(patternFor(text));
 
     setTagging(true);
     setError(null);
@@ -297,7 +307,10 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
                   <Field label="Color" swatch={color}>
                     <select
                       value={color}
-                      onChange={(e) => setColor(e.target.value as ColorName)}
+                      onChange={(e) => {
+                        setColor(e.target.value as ColorName);
+                        setColorPicked(true);
+                      }}
                       className={`${control} pl-8`}
                     >
                       {colorNames.map((c) => (
@@ -308,7 +321,10 @@ export default function AddPieceDrawer({ onClose, onAdd }: Props) {
                   <Field label="Pattern">
                     <select
                       value={pattern}
-                      onChange={(e) => setPattern(e.target.value as Pattern)}
+                      onChange={(e) => {
+                        setPattern(e.target.value as Pattern);
+                        setPatternPicked(true);
+                      }}
                       className={control}
                     >
                       {patterns.map((p) => (
