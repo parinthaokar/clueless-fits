@@ -4,7 +4,6 @@
 import type { ColorName } from "./colors";
 import type { Category, ClothingItem, GarmentKind, Pattern } from "./types";
 
-export const REC_PREFIX = "rec-";
 
 const has = (s: string, words: string[]) => words.some((w) => s.includes(w));
 
@@ -54,7 +53,7 @@ const titleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 export function toClothingItem(hit: { item_id: string; name: string }, category: Category): ClothingItem {
   const n = hit.name.toLowerCase();
   return {
-    id: `${REC_PREFIX}${hit.item_id}`,
+    id: `rec-${hit.item_id}`,
     name: titleCase(hit.name),
     category,
     kind: kindFor(category, n),
