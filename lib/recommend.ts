@@ -1,6 +1,6 @@
 // Turns what the recommendation model returns (a catalog item name + dataset category) into the
 // app's ClothingItem: a garment drawing (kind, colour, pattern) guessed from the name.
-// Catalog photos are never shown (see ClothingItem.photoUrl), so every pick is drawn.
+// The catalog photo (Supabase item-images bucket) is the picture; the drawing is only the fallback.
 import type { ColorName } from "./colors";
 import type { Category, ClothingItem, GarmentKind, Pattern } from "./types";
 
@@ -50,11 +50,12 @@ const patternFor = (n: string): Pattern => (has(n, ["plaid", "check", "tartan", 
 const titleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 
 /** `hit.name` is the catalog's short product name, e.g. "vetements black leather ankle boots". */
-export function toClothingItem(hit: { item_id: string; name: string }, category: Category): ClothingItem {
+export function toClothingItem(hit: { item_id: string; name: string; image_url?: string }, category: Category): ClothingItem {
   const n = hit.name.toLowerCase();
   return {
     id: `rec-${hit.item_id}`,
     name: titleCase(hit.name),
+    photoUrl: hit.image_url,
     category,
     kind: kindFor(category, n),
     color: colorFor(n),

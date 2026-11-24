@@ -55,7 +55,7 @@ export interface ClothingItem {
   color: ColorName; // see lib/colors.ts
   pattern: Pattern;
   description?: string;
-  photoUrl?: string; // the user's own photo, used as the picture only; never a Polyvore image
+  photoUrl?: string; // the picture: the user's own photo, or a catalog photo for model picks (Supabase item-images)
   addedAt: string; // ISO date
 }
 
