@@ -10,7 +10,7 @@ import type { OutfitItem } from "@/lib/types";
 // "Discover" card: pieces from the Polyvore catalog picked by our recommendation model
 // (FashionCLIP + trained adapter + category prior, served on Modal via /api/outfit).
 // The chat above styles looks from the user's closet; this suggests pieces they don't own yet.
-// Catalog photos are never shown, so each pick is drawn from its name (lib/recommend.ts).
+// Each pick shows its catalog photo (falls back to a drawing from its name, lib/recommend.ts).
 export default function CatalogPicks({ occasion }: { occasion: string }) {
   const [text, setText] = useState("");
   const [items, setItems] = useState<OutfitItem[] | null>(null);

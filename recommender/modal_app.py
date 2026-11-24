@@ -1,7 +1,7 @@
 """Clueless Closet recommendation API (Modal).
 
 POST /search  {"query": "black leather ankle boots", "k": 10, "category": null}
-  -> {"items": [{"item_id", "name", "category", "score"}]}
+  -> {"items": [{"item_id", "name", "category", "score", "image_url"}]}
 
 Model = FashionCLIP text tower + trained text adapter + category prior (selected model C).
 Item embeddings are precomputed; only the prompt is embedded per request (CPU is enough).
@@ -62,6 +62,7 @@ class Recommender:
         self.gcat = self.items["category"].map({c: i for i, c in enumerate(self.cats)}).values
         clf = pickle.load(open("/art/artifacts/category_clf.pkl", "rb"))
         self.vec, self.clf = clf["vec"], clf["clf"]
+        self.base = os.environ["IMAGE_BASE_URL"].rstrip("/")  # public Supabase bucket of catalog photos
         self.key = os.environ["API_KEY"]
 
     def _embed(self, text):
@@ -81,7 +82,8 @@ class Recommender:
             s = np.where(self.gcat == self.cats.index(category), s, -1e9)
         top = np.argsort(-s)[:k]
         return [{"item_id": str(self.items.item_id.iat[i]), "name": self.items.url_name.iat[i],
-                 "category": self.items.category.iat[i], "score": float(s[i])} for i in top]
+                 "category": self.items.category.iat[i], "score": float(s[i]),
+                 "image_url": f"{self.base}/{self.items.item_id.iat[i]}.jpg"} for i in top]
 
     @modal.asgi_app()
     def web(self):

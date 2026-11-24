@@ -25,7 +25,7 @@ const OCCASION_STYLE: Record<string, string> = {
 };
 const styleFor = (query: string) => OCCASION_STYLE[query.trim().toLowerCase().replace(/ outfit$/, "")] ?? query.trim();
 
-interface Hit { item_id: string; name: string; category: string; score: number }
+interface Hit { item_id: string; name: string; category: string; score: number; image_url: string }
 
 async function search(query: string, category: string, k: number): Promise<Hit[]> {
   const res = await fetch(`${process.env.MODAL_API_URL}/search`, {
