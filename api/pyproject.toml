@@ -6,7 +6,9 @@ requires-python = ">=3.11"
 dependencies = [
     "fastapi[standard]>=0.115",
     "pydantic>=2.7",
-    "scikit-learn==1.5.2",  # keep identical to modal_app.py and to the training environment
+    "scikit-learn==1.9.1",  # keep identical to modal_app.py and to the training environment
+    "torch==2.15.0",
+    "transformers==5.22.2",
     "joblib>=1.4",
     "pandas>=2.2",
     "modal>=1.0",

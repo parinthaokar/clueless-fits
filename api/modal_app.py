@@ -26,15 +26,25 @@ API_DIR = Path(__file__).parent
 MODEL_MODE = "pipeline"  # fitted Pipeline in artifacts/model.joblib (rebuild: train_pipeline.py)
 FRONTEND_ORIGINS = "http://localhost:3000"  # add the Vercel URL here, comma-separated
 
+def _download_model():
+    from transformers import CLIPModel, CLIPTokenizer
+    CLIPModel.from_pretrained("patrickjohncyh/fashion-clip")
+    CLIPTokenizer.from_pretrained("patrickjohncyh/fashion-clip")
+
+
 image = (
-    modal.Image.debian_slim(python_version="3.11")
+    modal.Image.debian_slim(python_version="3.13")
+    .pip_install("torch==2.15.0", index_url="https://download.pytorch.org/whl/cpu",
+                 extra_index_url="https://pypi.org/simple")
     .pip_install(
         "fastapi[standard]>=0.115",
         "pydantic>=2.7",
-        "scikit-learn==1.5.2",  # MUST match the version the model was trained with
+        "scikit-learn==1.9.1",  # MUST match the version the model was trained with
+        "transformers==5.22.2",
         "joblib>=1.4",
         "pandas>=2.2",
     )
+    .run_function(_download_model)  # bake the FashionCLIP weights into the image
     .env({"MODEL_MODE": MODEL_MODE, "ALLOWED_ORIGINS": FRONTEND_ORIGINS})
     .add_local_dir(API_DIR, "/root/api", ignore=["__pycache__", ".venv", "tests", "*.pyc"])
 )
@@ -42,7 +52,7 @@ image = (
 app = modal.App(name="clueless-closet-api", image=image)
 
 
-@app.function(scaledown_window=300)
+@app.function(scaledown_window=300, cpu=2, memory=4096)
 @modal.concurrent(max_inputs=50)
 @modal.asgi_app()
 def fastapi_app():

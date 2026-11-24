@@ -79,3 +79,15 @@ uv run python verify_outputs.py                         # terminal 2
 uv run python verify_outputs.py --report verify_report.json   # also save every response
 ```
 PowerShell for terminal 1: `$env:MODEL_MODE="pipeline"; uv run uvicorn main:app`.
+
+## The D4 model (what is served now)
+`MODEL_MODE=pipeline` serves `artifacts/model.joblib`: a scikit-learn Pipeline of
+`FashionCLIPTextAdapter` (custom transformer, `text_transformers.py`) then `LogisticRegression`.
+The transformer is the text side of the selected recommendation model (FashionCLIP + trained
+adapter, `recommendation-model/`). `artifacts/text_adapter.pt` is the exact adapter from the
+evaluated run: re-running `recommendation-model/src/evaluate.py` reproduces the committed
+`fashionclip_adapted_*.npy` to 0.0 difference (val MRR 0.5165, test MRR 0.5100), and
+`train_pipeline.py` checks the transformer against them (cosine 1.00000).
+Rebuild: `python train_pipeline.py` (needs torch, transformers, scikit-learn==1.9.1, pyarrow).
+On a Mac, torch 2.15 gives NaN for this model on CPU, so the transformer uses the Apple GPU
+(mps) when present; Modal's Linux CPU is fine.

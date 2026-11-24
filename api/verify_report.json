@@ -3,9 +3,9 @@
   "deployed": "https://parinthaokar--clueless-closet-api-fastapi-app.us-east.modal.run",
   "pipeline_info": {
     "local": {
-      "model_name": "cleaner-tfidf-logreg",
+      "model_name": "fashionclip-adapter-logreg",
       "model_version": "1.0",
-      "sklearn_version": "1.5.2",
+      "sklearn_version": "1.9.1",
       "classes": [
         "accessories",
         "all-body",
@@ -21,16 +21,16 @@
       ],
       "is_stub": false,
       "metrics": {
-        "val_accuracy": 0.8359226379201015,
-        "val_macro_f1": 0.808435676561129,
-        "test_accuracy": 0.8414167198468411,
-        "test_macro_f1": 0.8111933761208902
+        "val_accuracy": 0.8324350031705771,
+        "val_macro_f1": 0.7983131622488099,
+        "test_accuracy": 0.8351946394384173,
+        "test_macro_f1": 0.8050380682164421
       }
     },
     "deployed": {
-      "model_name": "cleaner-tfidf-logreg",
+      "model_name": "fashionclip-adapter-logreg",
       "model_version": "1.0",
-      "sklearn_version": "1.5.2",
+      "sklearn_version": "1.9.1",
       "classes": [
         "accessories",
         "all-body",
@@ -46,10 +46,10 @@
       ],
       "is_stub": false,
       "metrics": {
-        "val_accuracy": 0.8359226379201015,
-        "val_macro_f1": 0.808435676561129,
-        "test_accuracy": 0.8414167198468411,
-        "test_macro_f1": 0.8111933761208902
+        "val_accuracy": 0.8324350031705771,
+        "val_macro_f1": 0.7983131622488099,
+        "test_accuracy": 0.8351946394384173,
+        "test_macro_f1": 0.8050380682164421
       }
     }
   },
@@ -64,19 +64,19 @@
         "slots": [
           "Shoes"
         ],
-        "confidence": 0.9997,
+        "confidence": 0.9963,
         "top_3": [
           {
             "category": "shoes",
-            "probability": 0.9997
-          },
-          {
-            "category": "bottoms",
-            "probability": 0.0001
+            "probability": 0.9963
           },
           {
             "category": "accessories",
-            "probability": 0.0001
+            "probability": 0.0015
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0013
           }
         ]
       },
@@ -86,19 +86,19 @@
         "slots": [
           "Shoes"
         ],
-        "confidence": 0.9997,
+        "confidence": 0.9963,
         "top_3": [
           {
             "category": "shoes",
-            "probability": 0.9997
-          },
-          {
-            "category": "bottoms",
-            "probability": 0.0001
+            "probability": 0.9963
           },
           {
             "category": "accessories",
-            "probability": 0.0001
+            "probability": 0.0015
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0013
           }
         ]
       },
@@ -114,19 +114,19 @@
         "slots": [
           "Shoes"
         ],
-        "confidence": 0.9821,
+        "confidence": 0.983,
         "top_3": [
           {
             "category": "shoes",
-            "probability": 0.9821
+            "probability": 0.983
           },
           {
-            "category": "bags",
-            "probability": 0.0144
+            "category": "bottoms",
+            "probability": 0.0067
           },
           {
             "category": "tops",
-            "probability": 0.0009
+            "probability": 0.0045
           }
         ]
       },
@@ -136,19 +136,19 @@
         "slots": [
           "Shoes"
         ],
-        "confidence": 0.9821,
+        "confidence": 0.983,
         "top_3": [
           {
             "category": "shoes",
-            "probability": 0.9821
+            "probability": 0.983
           },
           {
-            "category": "bags",
-            "probability": 0.0144
+            "category": "bottoms",
+            "probability": 0.0067
           },
           {
             "category": "tops",
-            "probability": 0.0009
+            "probability": 0.0045
           }
         ]
       },
@@ -166,19 +166,19 @@
           "Top",
           "Bottom"
         ],
-        "confidence": 0.9556,
+        "confidence": 0.9359,
         "top_3": [
           {
             "category": "all-body",
-            "probability": 0.9556
+            "probability": 0.9359
           },
           {
             "category": "bottoms",
-            "probability": 0.0308
+            "probability": 0.0376
           },
           {
             "category": "shoes",
-            "probability": 0.0056
+            "probability": 0.01
           }
         ]
       },
@@ -189,19 +189,19 @@
           "Top",
           "Bottom"
         ],
-        "confidence": 0.9556,
+        "confidence": 0.9359,
         "top_3": [
           {
             "category": "all-body",
-            "probability": 0.9556
+            "probability": 0.9359
           },
           {
             "category": "bottoms",
-            "probability": 0.0308
+            "probability": 0.0376
           },
           {
             "category": "shoes",
-            "probability": 0.0056
+            "probability": 0.01
           }
         ]
       },
@@ -217,19 +217,19 @@
         "slots": [
           "Bottom"
         ],
-        "confidence": 0.9992,
+        "confidence": 0.9942,
         "top_3": [
           {
             "category": "bottoms",
-            "probability": 0.9992
+            "probability": 0.9942
           },
           {
-            "category": "all-body",
-            "probability": 0.0003
+            "category": "tops",
+            "probability": 0.002
           },
           {
-            "category": "accessories",
-            "probability": 0.0001
+            "category": "bags",
+            "probability": 0.0008
           }
         ]
       },
@@ -239,19 +239,19 @@
         "slots": [
           "Bottom"
         ],
-        "confidence": 0.9992,
+        "confidence": 0.9942,
         "top_3": [
           {
             "category": "bottoms",
-            "probability": 0.9992
+            "probability": 0.9942
           },
           {
-            "category": "all-body",
-            "probability": 0.0003
+            "category": "tops",
+            "probability": 0.002
           },
           {
-            "category": "accessories",
-            "probability": 0.0001
+            "category": "bags",
+            "probability": 0.0008
           }
         ]
       },
@@ -267,19 +267,19 @@
         "slots": [
           "Bottom"
         ],
-        "confidence": 0.9996,
+        "confidence": 0.9942,
         "top_3": [
           {
             "category": "bottoms",
-            "probability": 0.9996
+            "probability": 0.9942
           },
           {
             "category": "all-body",
-            "probability": 0.0003
+            "probability": 0.0038
           },
           {
-            "category": "bags",
-            "probability": 0.0001
+            "category": "tops",
+            "probability": 0.001
           }
         ]
       },
@@ -289,19 +289,19 @@
         "slots": [
           "Bottom"
         ],
-        "confidence": 0.9996,
+        "confidence": 0.9942,
         "top_3": [
           {
             "category": "bottoms",
-            "probability": 0.9996
+            "probability": 0.9942
           },
           {
             "category": "all-body",
-            "probability": 0.0003
+            "probability": 0.0038
           },
           {
-            "category": "bags",
-            "probability": 0.0001
+            "category": "tops",
+            "probability": 0.001
           }
         ]
       },
@@ -317,19 +317,19 @@
         "slots": [
           "Top"
         ],
-        "confidence": 0.9852,
+        "confidence": 0.9378,
         "top_3": [
           {
             "category": "tops",
-            "probability": 0.9852
+            "probability": 0.9378
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0254
           },
           {
             "category": "all-body",
-            "probability": 0.0056
-          },
-          {
-            "category": "outerwear",
-            "probability": 0.0051
+            "probability": 0.0193
           }
         ]
       },
@@ -339,19 +339,19 @@
         "slots": [
           "Top"
         ],
-        "confidence": 0.9852,
+        "confidence": 0.9378,
         "top_3": [
           {
             "category": "tops",
-            "probability": 0.9852
+            "probability": 0.9378
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0254
           },
           {
             "category": "all-body",
-            "probability": 0.0056
-          },
-          {
-            "category": "outerwear",
-            "probability": 0.0051
+            "probability": 0.0193
           }
         ]
       },
@@ -367,19 +367,19 @@
         "slots": [
           "Top"
         ],
-        "confidence": 0.9998,
+        "confidence": 0.998,
         "top_3": [
           {
             "category": "outerwear",
-            "probability": 0.9998
+            "probability": 0.998
           },
           {
-            "category": "hats",
-            "probability": 0.0
+            "category": "bottoms",
+            "probability": 0.0007
           },
           {
-            "category": "tops",
-            "probability": 0.0
+            "category": "accessories",
+            "probability": 0.0004
           }
         ]
       },
@@ -389,19 +389,19 @@
         "slots": [
           "Top"
         ],
-        "confidence": 0.9998,
+        "confidence": 0.998,
         "top_3": [
           {
             "category": "outerwear",
-            "probability": 0.9998
+            "probability": 0.998
           },
           {
-            "category": "hats",
-            "probability": 0.0
+            "category": "bottoms",
+            "probability": 0.0007
           },
           {
-            "category": "tops",
-            "probability": 0.0
+            "category": "accessories",
+            "probability": 0.0004
           }
         ]
       },
@@ -417,19 +417,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 1.0,
+        "confidence": 0.9983,
         "top_3": [
           {
             "category": "bags",
-            "probability": 1.0
+            "probability": 0.9983
           },
           {
-            "category": "all-body",
-            "probability": 0.0
+            "category": "accessories",
+            "probability": 0.0007
           },
           {
-            "category": "bottoms",
-            "probability": 0.0
+            "category": "scarves",
+            "probability": 0.0005
           }
         ]
       },
@@ -439,19 +439,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 1.0,
+        "confidence": 0.9983,
         "top_3": [
           {
             "category": "bags",
-            "probability": 1.0
+            "probability": 0.9983
           },
           {
-            "category": "all-body",
-            "probability": 0.0
+            "category": "accessories",
+            "probability": 0.0007
           },
           {
-            "category": "bottoms",
-            "probability": 0.0
+            "category": "scarves",
+            "probability": 0.0005
           }
         ]
       },
@@ -467,19 +467,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.9997,
+        "confidence": 0.9975,
         "top_3": [
           {
             "category": "jewellery",
-            "probability": 0.9997
-          },
-          {
-            "category": "sunglasses",
-            "probability": 0.0001
+            "probability": 0.9975
           },
           {
             "category": "scarves",
-            "probability": 0.0
+            "probability": 0.0009
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.0007
           }
         ]
       },
@@ -489,19 +489,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.9997,
+        "confidence": 0.9975,
         "top_3": [
           {
             "category": "jewellery",
-            "probability": 0.9997
-          },
-          {
-            "category": "sunglasses",
-            "probability": 0.0001
+            "probability": 0.9975
           },
           {
             "category": "scarves",
-            "probability": 0.0
+            "probability": 0.0009
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.0007
           }
         ]
       },
@@ -524,7 +524,7 @@
             "probability": 1.0
           },
           {
-            "category": "jewellery",
+            "category": "shoes",
             "probability": 0.0
           },
           {
@@ -546,7 +546,7 @@
             "probability": 1.0
           },
           {
-            "category": "jewellery",
+            "category": "shoes",
             "probability": 0.0
           },
           {
@@ -567,19 +567,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.998,
+        "confidence": 0.9989,
         "top_3": [
           {
             "category": "hats",
-            "probability": 0.998
+            "probability": 0.9989
           },
           {
             "category": "bags",
-            "probability": 0.0009
+            "probability": 0.0003
           },
           {
-            "category": "sunglasses",
-            "probability": 0.0003
+            "category": "all-body",
+            "probability": 0.0002
           }
         ]
       },
@@ -589,19 +589,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.998,
+        "confidence": 0.9989,
         "top_3": [
           {
             "category": "hats",
-            "probability": 0.998
+            "probability": 0.9989
           },
           {
             "category": "bags",
-            "probability": 0.0009
+            "probability": 0.0003
           },
           {
-            "category": "sunglasses",
-            "probability": 0.0003
+            "category": "all-body",
+            "probability": 0.0002
           }
         ]
       },
@@ -617,19 +617,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.9961,
+        "confidence": 0.9939,
         "top_3": [
           {
             "category": "scarves",
-            "probability": 0.9961
+            "probability": 0.9939
           },
           {
             "category": "tops",
-            "probability": 0.0011
+            "probability": 0.0023
           },
           {
-            "category": "bottoms",
-            "probability": 0.0009
+            "category": "accessories",
+            "probability": 0.0016
           }
         ]
       },
@@ -639,19 +639,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.9961,
+        "confidence": 0.9939,
         "top_3": [
           {
             "category": "scarves",
-            "probability": 0.9961
+            "probability": 0.9939
           },
           {
             "category": "tops",
-            "probability": 0.0011
+            "probability": 0.0023
           },
           {
-            "category": "bottoms",
-            "probability": 0.0009
+            "category": "accessories",
+            "probability": 0.0016
           }
         ]
       },
@@ -667,19 +667,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.9893,
+        "confidence": 0.9559,
         "top_3": [
           {
             "category": "accessories",
-            "probability": 0.9893
+            "probability": 0.9559
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0165
           },
           {
             "category": "shoes",
-            "probability": 0.0045
-          },
-          {
-            "category": "outerwear",
-            "probability": 0.0023
+            "probability": 0.0102
           }
         ]
       },
@@ -689,19 +689,19 @@
         "slots": [
           "Accessory"
         ],
-        "confidence": 0.9893,
+        "confidence": 0.9559,
         "top_3": [
           {
             "category": "accessories",
-            "probability": 0.9893
+            "probability": 0.9559
+          },
+          {
+            "category": "bottoms",
+            "probability": 0.0165
           },
           {
             "category": "shoes",
-            "probability": 0.0045
-          },
-          {
-            "category": "outerwear",
-            "probability": 0.0023
+            "probability": 0.0102
           }
         ]
       },
@@ -717,19 +717,19 @@
         "slots": [
           "Shoes"
         ],
-        "confidence": 0.3206,
+        "confidence": 0.3061,
         "top_3": [
           {
             "category": "shoes",
-            "probability": 0.3206
-          },
-          {
-            "category": "tops",
-            "probability": 0.1668
+            "probability": 0.3061
           },
           {
             "category": "bags",
-            "probability": 0.1667
+            "probability": 0.2127
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.1436
           }
         ]
       },
@@ -739,19 +739,19 @@
         "slots": [
           "Shoes"
         ],
-        "confidence": 0.3206,
+        "confidence": 0.3061,
         "top_3": [
           {
             "category": "shoes",
-            "probability": 0.3206
-          },
-          {
-            "category": "tops",
-            "probability": 0.1668
+            "probability": 0.3061
           },
           {
             "category": "bags",
-            "probability": 0.1667
+            "probability": 0.2127
+          },
+          {
+            "category": "sunglasses",
+            "probability": 0.1436
           }
         ]
       },
@@ -768,19 +768,19 @@
           "Top",
           "Bottom"
         ],
-        "confidence": 0.2184,
+        "confidence": 0.3038,
         "top_3": [
           {
             "category": "all-body",
-            "probability": 0.2184
+            "probability": 0.3038
           },
           {
-            "category": "sunglasses",
-            "probability": 0.1825
+            "category": "scarves",
+            "probability": 0.1788
           },
           {
-            "category": "accessories",
-            "probability": 0.1273
+            "category": "bottoms",
+            "probability": 0.1302
           }
         ]
       },
@@ -791,19 +791,19 @@
           "Top",
           "Bottom"
         ],
-        "confidence": 0.2184,
+        "confidence": 0.3038,
         "top_3": [
           {
             "category": "all-body",
-            "probability": 0.2184
+            "probability": 0.3038
           },
           {
-            "category": "sunglasses",
-            "probability": 0.1825
+            "category": "scarves",
+            "probability": 0.1788
           },
           {
-            "category": "accessories",
-            "probability": 0.1273
+            "category": "bottoms",
+            "probability": 0.1302
           }
         ]
       },
