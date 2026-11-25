@@ -956,7 +956,7 @@ function Photo({ item, layer }: { item?: ClothingItem; layer: Layer }) {
       width={box.w}
       height={box.h}
       preserveAspectRatio={layer === "bottom" || item.kind === "dress" ? "xMidYMid slice" : "xMidYMid meet"}
-      style={{ mixBlendMode: "multiply" }}
+      filter="url(#photo-cutout)"
     />
   );
 }
@@ -1012,6 +1012,13 @@ export default function Model({ style, skinTone, hairColor = DEFAULT_HAIR, outfi
 
   return (
     <svg viewBox="0 0 200 330" role="img" aria-label={label} className={className ?? "block h-full w-full"}>
+      <defs>
+        {/* Turns the near-white product-photo background transparent. */}
+        <filter id="photo-cutout" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -4 -4 -4 0 11.2" result="keyed" />
+          <feComposite in="keyed" in2="SourceAlpha" operator="in" />
+        </filter>
+      </defs>
       <ellipse cx="100" cy="316" rx="50" ry="7" fill={INK} fillOpacity={0.12} />
 
       {style === "feminine" && hair.ends && <Balayage id={balayageId} color={hair} />}
@@ -1034,7 +1041,7 @@ export default function Model({ style, skinTone, hairColor = DEFAULT_HAIR, outfi
         </>
       )}
 
-      <Garment worn={byLayer.bottom?.photoUrl && bottom ? base("bottom") : bottom} />
+      <Garment worn={byLayer.bottom?.photoUrl ? null : bottom} />
       <Photo item={wearingDress ? undefined : byLayer.bottom} layer="bottom" />
       <Garment worn={byLayer.top?.photoUrl ? base("top") : top} />
       <Photo item={byLayer.top} layer="top" />
