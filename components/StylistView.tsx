@@ -268,8 +268,8 @@ export default function StylistView({ params }: { params: StylistParams }) {
         </div>
 
         <div className="mt-5 grid gap-5 md:grid-cols-[200px_1fr]">
-          <div className="mx-auto flex w-full max-w-[220px] flex-col self-start items-center rounded-[18px] border-[1.5px] border-track bg-cream px-2 pt-3 pb-2.5 md:max-w-none">
-            <Model style={model} skinTone={skin} hairColor={hair} outfit={toModelOutfit(look.items)} className="block h-auto w-full max-w-[180px]" />
+          <div className="mx-auto flex w-full max-w-[220px] flex-col self-start items-center rounded-[18px] border-[1.5px] border-track bg-gradient-to-b from-white via-cream to-note-pink/40 px-2 pt-4 pb-3 md:max-w-none">
+            <Model style={model} skinTone={skin} hairColor={hair} outfit={toModelOutfit(look.items)} className="block h-auto w-full max-w-[190px] drop-shadow-[0_6px_8px_rgba(0,0,0,0.08)]" />
             <Tag className="mt-1 bg-white">On your model</Tag>
           </div>
 
@@ -277,7 +277,7 @@ export default function StylistView({ params }: { params: StylistParams }) {
             {sortBySlot(look.items).map(({ slot, item }) => (
               <li key={slot} className="text-center">
                 <Card size="sm" className="p-1.5">
-                  <div className="aspect-square overflow-hidden rounded-[10px]">
+                  <div className="aspect-square overflow-hidden rounded-[10px] bg-white">
                     <GarmentImage item={item} />
                   </div>
                 </Card>
