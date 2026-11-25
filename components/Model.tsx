@@ -934,33 +934,6 @@ interface Props {
   className?: string;
 }
 
-// Where a real product photo sits on the 200x330 model, by layer. Photos have a white
-// background, so they are drawn with multiply blending and only the garment shows.
-const PHOTO_BOX: Partial<Record<Layer, { x: number; y: number; w: number; h: number }>> = {
-  top: { x: 48, y: 58, w: 104, h: 108 },
-  bottom: { x: 52, y: 150, w: 96, h: 148 },
-  outerwear: { x: 40, y: 56, w: 120, h: 118 },
-  shoes: { x: 62, y: 284, w: 76, h: 40 },
-};
-const DRESS_BOX = { x: 44, y: 60, w: 112, h: 220 };
-
-function Photo({ item, layer }: { item?: ClothingItem; layer: Layer }) {
-  if (!item?.photoUrl) return null;
-  const box = item.kind === "dress" ? DRESS_BOX : PHOTO_BOX[layer];
-  if (!box) return null;
-  return (
-    <image
-      href={item.photoUrl}
-      x={box.x}
-      y={box.y}
-      width={box.w}
-      height={box.h}
-      preserveAspectRatio={layer === "bottom" || item.kind === "dress" ? "xMidYMid slice" : "xMidYMid meet"}
-      filter="url(#photo-cutout)"
-    />
-  );
-}
-
 export default function Model({ style, skinTone, hairColor = DEFAULT_HAIR, outfit, className }: Props) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const b = body[style];
@@ -977,9 +950,6 @@ export default function Model({ style, skinTone, hairColor = DEFAULT_HAIR, outfi
   const wearingDress = byLayer.top?.kind === "dress";
   if (wearingDress) delete byLayer.bottom; // a dress covers the bottom slot
   const longHem = !!byLayer.bottom && LONG_HEMS.includes(byLayer.bottom.kind);
-  // A real photo of long trousers or a dress hides the drawn legs under it.
-  const photoCoversLegs =
-    (!!byLayer.bottom?.photoUrl && longHem) || (wearingDress && !!byLayer.top?.photoUrl);
 
   const wear = (layer: Layer): Worn | null => {
     const item = byLayer[layer];
@@ -1012,27 +982,18 @@ export default function Model({ style, skinTone, hairColor = DEFAULT_HAIR, outfi
 
   return (
     <svg viewBox="0 0 200 330" role="img" aria-label={label} className={className ?? "block h-full w-full"}>
-      <defs>
-        {/* Turns the near-white product-photo background transparent. */}
-        <filter id="photo-cutout" colorInterpolationFilters="sRGB">
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -4 -4 -4 0 11.2" result="keyed" />
-          <feComposite in="keyed" in2="SourceAlpha" operator="in" />
-        </filter>
-      </defs>
       <ellipse cx="100" cy="316" rx="50" ry="7" fill={INK} fillOpacity={0.12} />
 
       {style === "feminine" && hair.ends && <Balayage id={balayageId} color={hair} />}
       <HairBack style={style} fill={hairFill} />
 
       {/* legs and arms, which show under short hems and sleeveless tops */}
-      {[...(photoCoversLegs ? [] : b.legs), ...b.arms].map((d) => (
+      {[...b.legs, ...b.arms].map((d) => (
         <path key={d} d={d} fill={skinTone} {...stroke} />
       ))}
 
       {/* shoes (bare feet when none) */}
-      {shoes && byLayer.shoes?.photoUrl ? (
-        <Photo item={byLayer.shoes} layer="shoes" />
-      ) : shoes ? (
+      {shoes ? (
         <Garment worn={shoes} />
       ) : (
         <>
@@ -1041,12 +1002,10 @@ export default function Model({ style, skinTone, hairColor = DEFAULT_HAIR, outfi
         </>
       )}
 
-      <Garment worn={byLayer.bottom?.photoUrl ? null : bottom} />
-      <Photo item={wearingDress ? undefined : byLayer.bottom} layer="bottom" />
-      <Garment worn={byLayer.top?.photoUrl ? base("top") : top} />
-      <Photo item={byLayer.top} layer="top" />
+      <Garment worn={bottom} />
+      <Garment worn={top} />
       <Garment worn={wear("belt")} />
-      {byLayer.outerwear?.photoUrl ? <Photo item={byLayer.outerwear} layer="outerwear" /> : <Garment worn={outerwear} />}
+      <Garment worn={outerwear} />
       <Garment worn={wear("purse")} />
 
       {b.hands.map((h) => (
