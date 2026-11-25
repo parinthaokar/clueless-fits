@@ -4,9 +4,11 @@ title: "Modeling Note: Text-to-Clothing Retrieval for the Recommendation App"
 
 ## 1. Task and data
 
-The app needs a model that turns a user's request ("black leather ankle boots") into a ranked list of clothing items, and that can also rank items for a user from their taste history. We use the Polyvore dataset (`owj0421/polyvore`): per item an image, a category (11 classes), and mostly empty `title`/`description` fields (about 70% empty). The always-present `url_name` (about 5 words, e.g. "marc jacobs fold down army") is therefore used as the text prompt. We used the first of six shards (41,835 items) to keep embedding feasible on a laptop.
+The application needs a model takes user input e.g.("black leather ankle boots") along with preferences from the users closet and returns a ranking of items to then be used in creating an outfit. We utilized the Polyvore data set (`owj0421/polyvore`) which contains in image per item, a category (11 classes), and mostly empty `title`/`description` fields (about 70% empty). Because of the missing data in the `title`/`description` field we instead use the `url_name` field which is always present as the text prompt. In addition because of the size of the Polyvore dataset and compute restraints we used only one of six shards in the modeling process. This worked out to 41,835 rows compared to the roughly 200,000 of the full dataset.
 
-**Evaluation task.** Each unique `url_name` is a query; the gallery is the *images only* of one split; a result is relevant if it is the item with that name. **Split:** 70/15/15 train/val/test, grouped by `url_name` so no prompt text appears in two splits (verified: 0 names in more than one split). Val has 6,006 queries over 6,308 items, test 6,006 queries over 6,268 items. **Metrics (identical for every model):** Recall@1/5/10, MRR, and CatMatch@10 (share of the top-10 with the correct clothing category, a softer "right kind of item" score). Ties are scored at mid-rank so no model gains from tied scores. Models are selected on **val only**; test is reported once.
+**Evaluation task.** Each unique `url_name` is a query which is used to search through the gallery; the gallery contains the images of the split; a result is successful if it finds the image matched to the query. **Split:** 70/15/15 train/val/test, grouped by `url_name` so no prompt text appears in two splits which was verified to to ensure the integrity of the results. Val has 6,006 queries over 6,308 items, test 6,006 queries over 6,268 items. **Metrics (identical for every model):** Recall@1/5/10, MRR, and CatMatch@10 (share of the top-10 with the correct clothing category, a softer "right kind of item" score). Ties are scored at mid-rank so no model gains from tied scores. Models are selected on **val only**; test is reported once.
+
+We chose these metrics because combined they provide a good picture of where the model stands. For example, if recall 1 is low but recall 5 is high having those two metrics combined with the others gives a good overview of changes to be made. Along with this we made sure to evaluate on the val set as opposed to test so we don't pick a model that over-fits the test score.
 
 ## 2. Models compared
 
@@ -33,17 +35,32 @@ Each of A, B, C was run on two backbones (generic CLIP, fashion-specific Fashion
 
 ![Test metrics (left) and CatMatch@10 by category, baseline vs. selected model (right).](../outputs/fig_comparison.png){width=95%}
 
-**Selected model: C with FashionCLIP** (best val MRR 0.5165 vs. 0.5130 for B and 0.4717 for zero-shot). The justification has three parts. (1) *Backbone matters most*: FashionCLIP roughly doubles generic CLIP's MRR (0.47 vs. 0.19 zero-shot), so domain pretraining is the biggest lever. (2) *The adapter adds a real but moderate gain* (+0.04 MRR on FashionCLIP, +0.04 on CLIP), and its training curve peaks around epoch 5-6 then overfits, so early stopping is needed. (3) *The category prior is small for exact retrieval but fixes the type-level errors*: on FashionCLIP it adds only +0.0032 test MRR (paired bootstrap 95% CI [+0.0011, +0.0052]: significant but tiny) yet lifts CatMatch@10 from 0.777 to 0.832, matching the text-only baseline's 0.837. For a chatbot, returning the wrong *kind* of item is the most visible failure, so we prefer C. Over the baseline the MRR gain is +0.50 (CI [+0.49, +0.51]). The baseline is a useful reference rather than a strawman: it is the best at CatMatch among non-hybrid models but cannot pick an individual item.
+**Selected Model: C with FashionCLIP** (best validation MRR of **0.5165**, beating Model B at 0.5130 and zero-shot at 0.4717). We chose this setup for three main reasons:
 
-## 4. Error analysis (selected model, test)
+1. **Domain pretraining makes the biggest difference:** FashionCLIP more than doubles generic CLIP's zero-shot MRR (**0.47 vs. 0.19**), proving that a fashion-tuned backbone is a strong advantage.
+2. **The adapter provides a solid boost (with early stopping):** Adding the trained adapter improves MRR by **+0.04** across both backbones. Because performance peaks around epochs 5–6 before diminishing returns, early stopping is essential for performance.
+3. **The category prior prevents obvious type mistakes:** While the category prior only adds a tiny **+0.0032** to test MRR (95% CI `[+0.0011, +0.0052]`), it boosts **CatMatch@10 from 77.7% to 83.2%** meaning that even if the model is wrong it is unlikely to suggest the wrong type of clothing altogether e.g.(shoes instead of a shirt), making Model C the clear winner.
 
-**By category.** Retrieval is easiest for hats (Recall@10 0.87), accessories (0.79) and outerwear (0.76) and hardest for sunglasses (0.59; many near-identical products, so the exact item is hard to isolate even when the type is right: CatMatch 0.88). Category-level confusion is concentrated in **scarves** (CatMatch@10 0.51) and **accessories** (0.56), which are vague, overlapping classes: top-1 confusions are scarves→bags/jewellery and accessories→jewellery. **All-body** items are mistaken for tops 12% of the time (dresses vs. tops), and outerwear for tops 7%.
+Overall, Model C beats the text-only baseline by **+0.50 MRR** (95% CI `[+0.49, +0.51]`). While the baseline is great at guessing the broad clothing category, it has no way to pick out a specific item—making it a useful benchmark rather than a real alternative.
+## 4. Error Analysis & Personalization Check
 
-**By prompt.** Very short prompts (≤3 words) are worst for exact items (Recall@10 0.59 vs. 0.81 for 4 words) because they are less specific, though their category is easy (0.90). Prompts for items that have a description score slightly higher (MRR 0.53 vs. 0.50) which suggests brand-style, better-documented items are easier.
+### Performance by Category
+* **Easiest to retrieve:** Distinct items like **hats** (87% Recall@10), **accessories** (79%), and **outerwear** (76%) perform best.
+* **Hardest to isolate:** **Sunglasses** have the lowest exact-item recall (59%)—not because the model misses the category (88% CatMatch), but because so many pairs look nearly identical.
+* **Category overlaps:** Broad labels cause the most confusion. **Scarves** (51% CatMatch@10) and **accessories** (56%) frequently overlap with bags and jewelry. Visual silhouettes also cause occasional mix-ups, with dresses mistaken for tops 12% of the time and outerwear mistaken for tops 7% of the time.
 
-**Failure inspection.** The worst misses (rank > 3,400 of ~6,300) are mostly prompts with no visual content: URL-encoded Japanese, Polish or other non-English text, and bare brand or person names ("lucrecia berenschot"). Many "misses" with the right category (rank 12-95) are near-duplicates, e.g. "earring set" or "silk georgette top" has dozens of valid answers, so exact-item recall *understates* usefulness.
+### Impact of Search Phrasing
+* **Prompt length:** Very short queries (≤3 words) easily find the right *type* of item (90% CatMatch), but lack the detail needed to pinpoint the exact product (59% Recall@10 vs. 81% for 4-word queries).
+* **Item descriptions:** Products with written descriptions score slightly higher (0.53 vs. 0.50 MRR), showing that branded, better-documented pieces give the model clearer signals.
 
-**Personalization sanity check (simulated users).** With no real user data, 400 synthetic users were generated (taste = two text-derived styles; 30 history likes, 10 held out). Using the selected embeddings, a mean-of-history taste vector reaches HitRate@10 0.125 versus 0.0225 random and 0.0525 for a favourite-categories baseline. Adding a prompt ("show me more shoes") to the taste vector raises the share of requested-category results from 0.58 to 0.92 at weight 1.0 with no loss of held-out recall, which is the mechanism for steering daily picks with a chat message. These numbers test mechanics only.
+### Why the Worst Misses Happen
+* **Non-visual prompts:** The lowest-ranked predictions (rank > 3,400 out of ~6,300) happen when queries lack visual cues—such as URL-encoded non-English text (Japanese, Polish) or bare person/brand names (e.g., `"lucrecia berenschot"`).
+* **"Good" misses:** Many items ranked just outside the top 10 (ranks 12–95) are still valid matches. Generic queries like `"earring set"` or `"silk georgette top"` have dozens of near-duplicates, meaning strict exact-item recall understates real-world usefulness.
+
+### Personalization Sanity Check (Simulated Users)
+To test recommendation mechanics without live user data, we generated **400 synthetic users** (each defined by two text-derived style preferences, 30 liked items, and 10 held-out test items):
+* **Taste profiling:** Averaging a user's liked item embeddings achieves a **12.5% HitRate@10**, outperforming both a favorite-categories baseline (5.25%) and random guessing (2.25%).
+* **Chat-steered recommendations:** Blending a user's taste vector with a chat prompt (e.g., `"show me more shoes"`) at weight `1.0` increases shoe recommendations from **58% to 92%** with zero drop in held-out recall—validating how daily picks can be steered via chat.
 
 ## 5. Limitations
 

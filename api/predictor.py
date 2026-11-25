@@ -66,9 +66,13 @@ class PipelinePredictor:
         self.version = str(meta.get("model_version", "1.0"))
         self.metrics = {k: float(v) for k, v in meta.get("metrics", {}).items()}
         self.classes = [str(c) for c in self.pipeline.classes_]
+        # Every label needs an app category and slots (categories.py), or /predict would 500.
+        if sorted(self.classes) != sorted(MODEL_CLASSES):
+            raise RuntimeError(f"Model classes {self.classes} don't match the API's {MODEL_CLASSES}")
         trained = meta.get("sklearn_version")
         if trained and trained != sklearn.__version__:
             raise RuntimeError(f"Model saved with scikit-learn {trained}, server has {sklearn.__version__}")
+        self.predict_proba("warm up", None)  # load heavy encoders now, not on the first request
 
     def predict_proba(self, name: str, description: str | None) -> dict[str, float]:
         import pandas as pd

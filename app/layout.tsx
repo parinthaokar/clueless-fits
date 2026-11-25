@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Libre_Baskerville } from "next/font/google";
+import { StoreProvider } from "@/lib/store";
 import "./globals.css";
 
 // Inter is variable (covers 400–900). Libre Baskerville is static: 700 for the logo/headline.
@@ -18,7 +19,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${libreBaskerville.variable}`}>
-      <body className="min-h-screen">{children}</body>
+      {/* StoreProvider is here, not in (app)/layout, so a sign-in link that lands on the
+          landing page (Supabase's fallback) still signs the user in. */}
+      <body className="min-h-screen">
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   );
 }

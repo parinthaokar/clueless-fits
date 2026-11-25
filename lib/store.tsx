@@ -14,11 +14,12 @@
 //
 // Built on useSyncExternalStore, so the server render and the first client render use the
 // mock data and React swaps in the stored data right after hydration (no mismatch).
+import { DEMO_PHOTOS } from "./demoPhotos";
 import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
 import { DEFAULT_HAIR, HAIR_COLORS, SKIN_TONES, type HairColor, type SkinTone } from "@/components/Model";
 import { savedOutfits, wardrobeItems } from "./mockData";
 import type { Appearance } from "./outfit";
-import { PHOTO_BUCKET, supabase } from "./supabase";
+import { fromSignInLink, PHOTO_BUCKET, supabase } from "./supabase";
 import type { Category, ClothingItem, GarmentKind, LookSlot, ModelStyle, OutfitItem, OutfitSuggestion, Pattern, SavedOutfit } from "./types";
 import type { ColorName } from "./colors";
 
@@ -63,8 +64,11 @@ const isSkinTone = (v: unknown): v is SkinTone => SKIN_TONES.includes(v as SkinT
 const isHairColor = (v: unknown): v is HairColor => HAIR_COLORS.some((h) => h.id === v);
 
 // Blob URLs from an earlier visit point at nothing, so drop them (the drawing is used instead).
-const withLivePhoto = (item: ClothingItem): ClothingItem =>
-  item.photoUrl?.startsWith("blob:") ? { ...item, photoUrl: undefined } : item;
+// Demo pieces stored before they had catalog photos get theirs back here.
+const withLivePhoto = (item: ClothingItem): ClothingItem => {
+  const photoUrl = item.photoUrl?.startsWith("blob:") ? undefined : item.photoUrl;
+  return { ...item, photoUrl: photoUrl ?? DEMO_PHOTOS[item.id] };
+};
 
 /** Use what's stored field by field; anything missing or malformed falls back to the mock data. */
 function parse(raw: string | null): StoreState {
@@ -119,9 +123,22 @@ export type AccountStatus = "off" | "checking" | "signedOut" | "loading" | "sign
 export interface Account {
   status: AccountStatus;
   email: string | null;
+  /** Why the last sign-in link didn't work, shown on /sign-in. */
+  linkError: string | null;
 }
 
-let account: Account = { status: supabase ? "checking" : "off", email: null };
+// A failed sign-in link sends the user to /sign-in#link-failed (see startAuth).
+const LINK_FAILED = "#link-failed";
+const LINK_FAILED_MESSAGE =
+  "That sign-in link didn't work. Links expire after an hour and only work in the browser you asked for them in. Send yourself a new one.";
+const linkFailed = typeof window !== "undefined" && window.location.hash === LINK_FAILED;
+if (linkFailed) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
+let account: Account = {
+  status: supabase ? "checking" : "off",
+  email: null,
+  linkError: linkFailed ? LINK_FAILED_MESSAGE : null,
+};
 let userId: string | null = null;
 const photoPaths = new Map<string, string>(); // closet item id → path in the photo bucket
 
@@ -284,15 +301,29 @@ function startAuth() {
       if (!user) {
         photoPaths.clear();
         state = load();
-        setAccount({ status: "signedOut", email: null });
+        setAccount({ ...account, status: "signedOut", email: null });
         return;
       }
       // Keep the look of the model while the closet loads; show no demo pieces.
       state = { ...getSnapshot(), closet: [], saved: [] };
-      setAccount({ status: "loading", email: user.email ?? null });
+      setAccount({ status: "loading", email: user.email ?? null, linkError: null });
       void loadRemote();
     }, 0);
   });
+
+  // Back from a sign-in link: once Supabase has used it, go to the wardrobe if it worked
+  // (it may have landed on the landing page) or explain on /sign-in if it didn't.
+  if (fromSignInLink) {
+    const db = supabase;
+    void db.auth.initialize().then(async () => {
+      const { data } = await db.auth.getSession();
+      if (data.session) {
+        if (window.location.pathname === "/") window.location.replace("/wardrobe");
+      } else {
+        window.location.replace(`/sign-in${LINK_FAILED}`);
+      }
+    });
+  }
 }
 
 // ---- external store --------------------------------------------------------------------------
@@ -303,7 +334,7 @@ const listeners = new Set<() => void>();
 const getSnapshot = () => (state ??= load());
 const getServerSnapshot = () => initialState;
 const getAccount = () => account;
-const serverAccount: Account = { status: "off", email: null };
+const serverAccount: Account = { status: "off", email: null, linkError: null };
 const getServerAccount = () => serverAccount;
 
 function notify() {
@@ -445,6 +476,7 @@ const actions = {
   /** Emails a sign-in link that comes back to `next` (a path). Resolves to an error message or null. */
   async sendSignInLink(email: string, next = "/wardrobe"): Promise<string | null> {
     if (!supabase) return "Sign-in isn't set up for this site.";
+    if (account.linkError) setAccount({ ...account, linkError: null });
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}${next}` },

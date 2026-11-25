@@ -5,7 +5,7 @@ the frontend (Next.js + shadcn/ui on Vercel). **Change it only through a pull
 request that both the backend and frontend owners approve.** The live,
 always-current version is the API's own docs page: `<API_URL>/docs`.
 
-- **Base URL (production):** `https://<modal-workspace>--clueless-closet-api-fastapi-app.modal.run` (filled in after first deploy)
+- **Base URL (production):** `https://rgollapa105--clueless-closet-api-fastapi-app.us-east.modal.run`
 - **Base URL (local):** `http://127.0.0.1:8000`
 - **Format:** JSON in, JSON out. No auth.
 - **CORS:** allowed from `http://localhost:3000` and any `https://*.vercel.app`.
@@ -26,7 +26,7 @@ Information about the loaded model. Returns **503** if no model is loaded.
 {
   "model_name": "stub-keyword-rules",
   "model_version": "0.1-stub",
-  "sklearn_version": "1.5.2",
+  "sklearn_version": "1.9.1",
   "classes": ["accessories", "all-body", "bags", "bottoms", "hats", "jewellery",
               "outerwear", "scarves", "shoes", "sunglasses", "tops"],
   "is_stub": true,

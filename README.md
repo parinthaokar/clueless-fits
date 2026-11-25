@@ -1,7 +1,8 @@
 # Closet
 
 Next.js App Router + Tailwind. "Add a piece" tags items through the backend's `/predict`
-API (`lib/api.ts`); the stylist is still mocked from `lib/mockData.ts`. The closet, saved looks
+API (`lib/api.ts`); the stylist chat uses Gemini through `app/api/stylist/route.ts` (see
+[AI stylist](#ai-stylist-gemini)) and falls back to the mock looks in `lib/mockData.ts`. The closet, saved looks
 (with ratings) and the model style / skin tone live in a client store, `lib/store.tsx` (React
 context + localStorage), which starts from the mock data when storage is empty.
 Colors and fonts are defined once, in the `@theme` block of `app/globals.css`.
@@ -19,6 +20,18 @@ npm run dev                  # http://localhost:3000
 It's gitignored, so each of us copies it from `.env.example`. Restart `npm run dev` after
 changing it. The backend currently only accepts requests from `localhost:3000`; to use it from
 a Vercel deployment, send the Vercel URL to the backend owner so it can be allowed.
+
+### AI stylist (Gemini)
+
+The Stylist chat can build a look from your closet, edit the current look ("swap the boots
+for sneakers") and change the model's body, skin tone and hair colour. To turn it on, get a
+free key at https://aistudio.google.com/apikey, set `GEMINI_API_KEY=` in `.env.local` and
+restart `npm run dev`. The key is only read on the server (no `NEXT_PUBLIC_` prefix), so it
+never reaches the browser; for Vercel, add it under Settings → Environment Variables.
+
+`gemini-flash-latest` is tried first and `gemini-flash-lite-latest` if it's busy or rate-limited
+(the free tier is often overloaded). `GEMINI_MODEL` overrides that with a comma-separated list.
+Without a key, the occasion pills and Shuffle fall back to the mock looks.
 
 ## Routes
 

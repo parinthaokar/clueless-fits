@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 import sklearn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 from categories import APP_CATEGORY, SLOTS
 from predictor import load_predictor
@@ -28,7 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Clueless Closet API",
-    version="0.1.0",
+    version="1.0.0",
     description="Predicts a clothing item's category and outfit slot from its name.",
     lifespan=lifespan,
 )
@@ -49,6 +50,12 @@ def get_predictor():
     if state["predictor"] is None:
         raise HTTPException(status_code=503, detail="Model not available")
     return state["predictor"]
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    """The bare URL opens the interactive docs."""
+    return RedirectResponse("/docs")
 
 
 @app.get("/health", response_model=HealthResponse)
