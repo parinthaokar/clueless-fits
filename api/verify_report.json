@@ -1,6 +1,6 @@
 {
   "local": "http://127.0.0.1:8000",
-  "deployed": "https://parinthaokar--clueless-closet-api-fastapi-app.us-east.modal.run",
+  "deployed": "https://rgollapa105--clueless-closet-api-fastapi-app.us-east.modal.run",
   "pipeline_info": {
     "local": {
       "model_name": "fashionclip-adapter-logreg",
